@@ -1,0 +1,128 @@
+.message__board
+    display: flex
+    flex-direction: column
+    width: 100%
+    padding: 0 2rem
+    margin: 1.75rem 0
+
+.chat__header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    width: 98%
+    background-color: #F1C40F
+    border-radius: 10px
+    padding: 0.5rem 1rem
+
+    svg
+        height: auto
+        width: 2.5rem
+        margin-right: 1.5rem
+        cursor: pointer
+
+.header__profile
+    display: flex
+    align-items: center
+
+    img
+        width: 65px
+        height: 65px
+        margin-left: 1.5rem
+        border-radius: 50%
+    p
+        margin: 0 0 0 1.25rem
+        font-size: 2.125rem
+        font-weight: 500
+.chat
+    width: 100%
+    height: 100%
+
+.not_selected__chat
+    display: flex
+    justify-content: center
+    align-items: center
+    font-size: 2rem
+    width: 98%
+    height: 91.3vh
+    padding: 1rem
+    background-color: rgba(95, 77, 4, 0.35)
+    border-radius: 15px
+
+.selected__chat
+    font-size: 2rem
+    text-align: center
+
+.messages
+    display: flex
+    flex-direction: column
+    width: 100%
+    height: 78vh
+    overflow-y: auto
+
+.chat__input
+    display: flex
+    align-items: center
+    width: 98%
+    background-color: #333
+    padding: 1rem
+    border-radius: 25px
+    gap: 1rem
+
+    input
+        flex: 1
+        padding: 0.5rem
+        border: none
+        outline: none
+        font-size: 1.125rem
+        color: #fff
+        background-color: transparent
+
+    svg
+        cursor: pointer
+        width: 1.5rem
+        height: 1.5rem
+
+    .baseline__send
+        background-color: #F1C40F
+        padding: .5rem
+        border-radius: 90px
+
+    .link
+        width: 2rem
+        height: auto
+
+.messages
+    display: flex
+    flex-direction: column
+    width: 100%
+    height: 74vh
+    overflow-y: auto
+    padding: 1rem 0
+
+.user__sent, .user__received
+    display: inline-block
+    max-width: 30rem
+    width: auto
+    word-wrap: break-word
+    padding: 10px 15px
+    margin: 5px 10px
+    border-radius: 10px
+    font-size: 1rem
+    line-height: 1.5
+    box-sizing: border-box
+
+    p
+        margin: 0
+        // max-width: 10%
+
+.user__sent
+    background-color: #FFFFFF
+    align-self: flex-end
+    color: #333
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2)
+
+.user__received
+    background-color: #4A4A4A
+    align-self: flex-start
+    color: #FFFFFF
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2)

@@ -1,0 +1,174 @@
+$username-color: #fff
+$user-text-color: rgba(255, 255, 255, 0.6)
+$center-margin: 1.5rem
+
+a
+    text-decoration: none
+
+p
+    font-family: Roboto
+
+.sidebar
+    display: flex
+    flex-direction: column
+
+    height: 94vh
+    width: 23%
+    min-width: 21rem
+    border: 2px solid #353638
+    border-radius: 10px
+    margin: 1.75rem 1rem
+
+    .account__detail
+        margin-top: .5rem
+        margin-left: $center-margin - .5rem
+
+    p
+        color: $username-color
+        margin-left: 1.5rem
+        font-size: 1.25rem
+
+    .search
+        margin-left: $center-margin
+
+.profile__image
+    width: 65px
+    height: 100%
+
+    img
+        width: 100%
+        height: auto
+
+.account__detail
+    display: flex
+
+.account__info
+    display: flex
+    justify-content: center
+    flex-direction: column
+
+    .username
+        color: $username-color
+        font-size: 1.1rem
+        font-weight: bold
+        margin: 0
+
+    .nickname
+        font-size: .8rem
+        font-weight: 100
+        color: $user-text-color
+        margin: 0
+
+.search
+
+    svg
+        height: auto
+        width: 24px
+        position: absolute
+        margin-top: 1rem
+        margin-left: .5rem
+
+    input
+        font-size: 1.2rem
+        padding: 1rem 1rem 1rem 2rem
+        border-radius: 15px
+
+.chat__list
+    height: 63vh
+    max-height: 63vh
+    overflow-y: auto
+    padding-left: 1rem
+
+.user__item
+    display: flex
+    align-items: center
+    margin-top: 1rem
+    cursor: pointer
+
+.found__user
+    display: flex
+    align-items: center
+    margin: 1rem 1.1rem 0 1.6rem
+    padding: .2rem
+    cursor: pointer
+    border: 2px solid #FFD700
+    border-radius: 10px
+
+    p
+        font-size: 1.25rem
+        margin-left: .5rem
+
+.no_profile_img
+    img
+        width: 88px
+        height: 100%
+
+.selected_user__item
+    display: flex
+    margin-top: 1rem
+    border-left: 6px solid #FFD700
+    cursor: pointer
+
+.user_info
+
+    p
+        margin: 0
+
+    .user_info__title
+        font-size: 1.125rem
+        margin-top: 1rem
+        padding-bottom: .5rem
+
+    .user_info__lastMessage
+        font-size: .8rem
+        font-weight: lighter
+
+.user__img
+    margin-top: .25rem
+    width: 65px
+    height: 65px
+    overflow: hidden
+    border-radius: 50%
+
+.profile_img
+    margin: 0 .75rem
+    width: 65px
+    height: 65px
+    overflow: hidden
+    border-radius: 50%
+
+.currentUser_profile__image
+    width: auto
+    height: 100%
+    padding-right: .75rem
+
+.foundUser__image
+    width: 64px
+    height: 64px
+    border-radius: 50%
+    overflow: hidden
+
+.founder__no_profile_img
+    img
+        width: 70px
+        height: 70px
+
+.signout__btn
+    width: 50%
+    background-color: #FFD700
+    padding: 1rem 2rem
+    border-radius: 20px
+    border: 1px solid #FFD700
+    font-size: 1rem
+    font-weight: 600
+    transition: .3s
+    margin: 0 auto
+    cursor: pointer
+
+    &:hover
+        color: #f1c40f
+        background-color: #302f2f
+        border: 1px solid #4A4A4A
+
+.no_profile__image
+    width: 64px
