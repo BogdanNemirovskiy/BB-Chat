@@ -64,15 +64,20 @@ export const doSignInWithGoogle = async () => {
 export const doSignInWithGitHub = async () => {
     try {
         const provider = new GithubAuthProvider();
+        provider.addScope('user');
+
         const result = await signInWithPopup(auth, provider);
 
-        return result;
-    } catch (error) {
-        console.error('Error during Github sig-in', error);
-        return { error }
-    }
+        const user = result.user;
+        console.log('GitHub user:', user);
 
+        return { user, error: null };
+    } catch (error) {
+        console.error('GitHub sign-in error:', error.message);
+        return { user: null, error };
+    }
 };
+
 
 export const doSignInWithMicrosoft = async () => {
     const provider = new OAuthProvider("microsoft.com");

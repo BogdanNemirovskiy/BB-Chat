@@ -13,7 +13,7 @@ import { API } from '../../config/api';
 
 const db = getFirestore();
 
-export default function Sidebar({ handleSelectChat, setSelectedChat }) {
+export default function Sidebar({ handleSelectChat }) {
     const { currentUser } = useAuth();
     const [searchInput, setSearchInput] = useState('');
     const [foundUser, setFoundUser] = useState([]);

@@ -4,7 +4,7 @@ import Input from './Input';
 import classes from './Signup.module.sass';
 import logo from '../../images/logo.png';
 import { validateField } from './functions';
-import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
+import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, doSignInWithMicrosoft } from '../../config/auth';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,8 @@ export default function Signup({ }) {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [isRegistering, setIsRegistering] = useState(false);
+    const [isSigningIn, setIsSigningIn] = useState(false);
+    const [signInError, setSignInError] = useState(false);
     const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
@@ -40,6 +42,43 @@ export default function Signup({ }) {
             ...prevErrors,
             [name]: validateField(name, value),
         }));
+    };
+
+    const onGoogleSignIn = async (e) => {
+        e.preventDefault();
+        setIsSigningIn(true);
+        const { user, error } = await doSignInWithGoogle();
+        if (error) {
+            setSignInError('Error with Google sign-in. Please try again.');
+        } else {
+            // setUserLoggedIn(true);
+            navigate('/');
+        }
+        setIsSigningIn(false);
+    };
+
+    const onGitHubSignIn = async (e) => {
+        e.preventDefault();
+        const { user, error } = await doSignInWithGitHub();
+        if (error) {
+            setSignInError('Error with GitHub sign-in. Please try again.');
+        } else {
+            // setUserLoggedIn(true);
+            navigate('/');
+        }
+        setIsSigningIn(false);
+    };
+
+    const onMicrosoftSignIn = async (e) => {
+        e.preventDefault();
+        const { user, error } = await doSignInWithMicrosoft();
+        if (error) {
+            setSignInError('Error with GitHub sign-in. Please try again.');
+        } else {
+            // setUserLoggedIn(true);
+            navigate('/');
+        }
+        setIsSigningIn(false);
     };
 
     return (
@@ -81,9 +120,9 @@ export default function Signup({ }) {
                     <span></span> <p>Sign up with</p> <span></span>
                 </div>
                 <div className={classes.sign_up__withIcons}>
-                    <Icon icon="flat-color-icons:google" />
-                    <Icon icon="simple-icons:github" style={{ color: 'black' }} />
-                    <Icon icon="logos:microsoft-icon" />
+                    <Icon icon="flat-color-icons:google" onClick={onGoogleSignIn} />
+                    <Icon icon="simple-icons:github" style={{ color: 'black' }} onClick={onGitHubSignIn} />
+                    <Icon icon="logos:microsoft-icon" onClick={onMicrosoftSignIn} />
                 </div>
             </div>
 
