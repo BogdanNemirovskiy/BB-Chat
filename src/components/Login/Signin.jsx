@@ -3,7 +3,7 @@ import Input from './Input';
 import classes from './Signin.module.sass';
 import logo from '../../images/logo.png';
 import { validateField, validateAllFields } from './functions';
-import { doSignInWithEmailAndPassword, doSignInWithGitHub, doSignInWithGoogle, doSignInWithMicrosoft } from '../../config/auth';
+import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, doSignInWithMicrosoft } from '../../config/auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contex/authContex';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -54,32 +54,35 @@ export default function Signin({ onToggleForm }) {
     };
 
 
-
-
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
-        setIsSigningIn(true);
+
         const { user, error } = await doSignInWithGoogle();
+
         if (error) {
-            setSignInError('Error with Google sign-in. Please try again.');
+            setIsSigningIn('Error with Google sign-in. Please try again.')
         } else {
-            // setUserLoggedIn(true);
-            navigate('/');
+            navigate('/')
         }
         setIsSigningIn(false);
-    };
+    }
 
     const onGitHubSignIn = async (e) => {
         e.preventDefault();
+
         const { user, error } = await doSignInWithGitHub();
+
         if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
+            setIsSigningIn('Error with GitHub sign-in. Please try again.')
         } else {
-            // setUserLoggedIn(true);
-            navigate('/');
+            console.log(user);
+            navigate('/')
         }
         setIsSigningIn(false);
-    };
+    }
+
+
+
 
     const onMicrosoftSignIn = async (e) => {
         e.preventDefault();

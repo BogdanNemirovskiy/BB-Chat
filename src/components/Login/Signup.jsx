@@ -8,7 +8,7 @@ import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHu
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function Signup({ }) {
+export default function Signup() {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [isRegistering, setIsRegistering] = useState(false);
@@ -46,28 +46,29 @@ export default function Signup({ }) {
 
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
-        setIsSigningIn(true);
+
         const { user, error } = await doSignInWithGoogle();
+
         if (error) {
-            setSignInError('Error with Google sign-in. Please try again.');
+            setIsSigningIn('Error with Google sign-in. Please try again.')
         } else {
-            // setUserLoggedIn(true);
-            navigate('/');
+            navigate('/')
         }
         setIsSigningIn(false);
-    };
+    }
 
     const onGitHubSignIn = async (e) => {
         e.preventDefault();
+
         const { user, error } = await doSignInWithGitHub();
+
         if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
+            setIsSigningIn('Error with GitHub sign-in. Please try again.')
         } else {
-            // setUserLoggedIn(true);
-            navigate('/');
+            navigate('/')
         }
         setIsSigningIn(false);
-    };
+    }
 
     const onMicrosoftSignIn = async (e) => {
         e.preventDefault();

@@ -12,8 +12,7 @@ import {
     getAuth
 } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 
 // export const doCreateUserWithEmailAndPassword = async (email, password) => {
@@ -52,11 +51,28 @@ export const doCreateUserWithEmailAndPassword = async (email, password, userName
     }
 };
 
+
 export const doSignInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
         const result = await signInWithPopup(auth, provider);
-        return { user: result.user, error: null };
+        const user = result.user;
+
+        const userRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (!docSnap.exists()) {
+            await setDoc(userRef, {
+                userName: user.displayName || "Google User",
+                email: user.email,
+                createdAt: new Date(),
+            });
+            console.log("New Google user added to Firestore.");
+        } else {
+            console.log("User already exists in Firestore.");
+        }
+
+        return { user, error: null };
     } catch (error) {
         console.error("Google sign-in error:", error.message);
         return { user: null, error };
@@ -67,29 +83,29 @@ export const doSignInWithGitHub = async () => {
     const provider = new GithubAuthProvider();
     try {
         const result = await signInWithPopup(auth, provider);
-        return { user: result.user, error: null };
+        const user = result.user;
+
+        const userRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (!docSnap.exists()) {
+            await setDoc(userRef, {
+                userName: user.displayName || "GitHub User",
+                email: user.email,
+                createdAt: new Date(),
+            });
+            console.log("New GitHub user added to Firestore.");
+        } else {
+            console.log("User already exists in Firestore.");
+        }
+
+        return { user, error: null };
     } catch (error) {
         console.error("GitHub sign-in error:", error.message);
         return { user: null, error };
     }
 };
 
-export const doSignInWithGitHub2 = async () => {
-    try {
-        const provider = new GithubAuthProvider();
-        provider.addScope('user');
-
-        const result = await signInWithPopup(auth, provider);
-
-        const user = result.user;
-        console.log('GitHub user:', user);
-
-        return { user, error: null };
-    } catch (error) {
-        console.error('GitHub sign-in error:', error.message);
-        return { user: null, error };
-    }
-};
 
 
 export const doSignInWithMicrosoft = async () => {
@@ -132,4 +148,3 @@ export const doSendEmailVerification = () => {
         url: `${window.location.origin}/home`
     });
 };
-

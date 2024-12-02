@@ -78,6 +78,9 @@ export default function Sidebar({ handleSelectChat }) {
             fetchUserData();
             fetchChatsWithUsernames();
         }
+
+        console.log(currentUser);
+
     }, [currentUser]);
 
 
@@ -178,7 +181,7 @@ export default function Sidebar({ handleSelectChat }) {
                     <div className={classes.account__info}>
                         <p className={classes.username}>{currentUser.displayName}</p>
                         <p className={classes.nickname}>
-                            @{currentUser.displayName.toLowerCase()}
+                            @{currentUser?.displayName?.toLowerCase() || 'unknown'}
                         </p>
                     </div>
                 </div>
