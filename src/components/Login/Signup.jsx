@@ -73,7 +73,7 @@ export default function Signup({ }) {
         e.preventDefault();
         const { user, error } = await doSignInWithMicrosoft();
         if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
+            setSignInError('Error with Microsoft sign-in. Please try again.');
         } else {
             // setUserLoggedIn(true);
             navigate('/');

@@ -8,7 +8,8 @@ import {
     signInWithEmailAndPassword,
     signInWithPopup,
     updatePassword,
-    updateProfile
+    updateProfile,
+    getAuth
 } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
@@ -18,6 +19,9 @@ import { useNavigate } from "react-router-dom";
 // export const doCreateUserWithEmailAndPassword = async (email, password) => {
 //     return createUserWithEmailAndPassword(auth, email, password);
 // };
+
+
+
 
 export const doCreateUserWithEmailAndPassword = async (email, password, userName) => {
     if (!userName) {
@@ -59,9 +63,18 @@ export const doSignInWithGoogle = async () => {
     }
 };
 
-
-
 export const doSignInWithGitHub = async () => {
+    const provider = new GithubAuthProvider();
+    try {
+        const result = await signInWithPopup(auth, provider);
+        return { user: result.user, error: null };
+    } catch (error) {
+        console.error("GitHub sign-in error:", error.message);
+        return { user: null, error };
+    }
+};
+
+export const doSignInWithGitHub2 = async () => {
     try {
         const provider = new GithubAuthProvider();
         provider.addScope('user');
