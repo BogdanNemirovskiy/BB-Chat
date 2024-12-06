@@ -3,11 +3,14 @@ import Input from './Input';
 import classes from './Signin.module.sass';
 import logo from '../../images/logo.png';
 import { validateField, validateAllFields } from './functions';
-import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, doSignInWithMicrosoft } from '../../config/auth';
+import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contex/authContex';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link } from 'react-router-dom';
+import { db } from '../../config/firebaseConfig';
+import { setDoc, getDoc, doc } from 'firebase/firestore';
+
 
 export default function Signin({ onToggleForm }) {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -49,6 +52,8 @@ export default function Signin({ onToggleForm }) {
             setIsSigningIn(false);
         } else {
             // setUserLoggedIn(true);
+            console.log('user', user);
+
             navigate('/');
         }
     };
@@ -56,12 +61,16 @@ export default function Signin({ onToggleForm }) {
 
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
-
         const { user, error } = await doSignInWithGoogle();
+
+        const userData = {
+
+        }
 
         if (error) {
             setIsSigningIn('Error with Google sign-in. Please try again.')
         } else {
+            console.log('user', user);
             navigate('/')
         }
         setIsSigningIn(false);
@@ -80,21 +89,6 @@ export default function Signin({ onToggleForm }) {
         }
         setIsSigningIn(false);
     }
-
-
-
-
-    const onMicrosoftSignIn = async (e) => {
-        e.preventDefault();
-        const { user, error } = await doSignInWithMicrosoft();
-        if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
-        } else {
-            // setUserLoggedIn(true);
-            navigate('/');
-        }
-        setIsSigningIn(false);
-    };
 
     return (
         <>
@@ -135,7 +129,6 @@ export default function Signin({ onToggleForm }) {
                     <div className={classes.sign_up__withIcons}>
                         <Icon icon="flat-color-icons:google" onClick={onGoogleSignIn} />
                         <Icon icon="simple-icons:github" style={{ color: 'black' }} onClick={onGitHubSignIn} />
-                        <Icon icon="logos:microsoft-icon" onClick={onMicrosoftSignIn} />
                     </div>
                 </div>
                 <Link className={classes.sign_in_link} to='/signup'>

@@ -65,6 +65,7 @@ export default function Sidebar({ handleSelectChat }) {
                 if (userSnapshot.exists()) {
                     const data = userSnapshot.data();
                     setUserData(data);
+
                 } else {
                     console.error('No such user document!');
                 }
@@ -78,8 +79,6 @@ export default function Sidebar({ handleSelectChat }) {
             fetchUserData();
             fetchChatsWithUsernames();
         }
-
-        console.log(currentUser);
 
     }, [currentUser]);
 
@@ -155,18 +154,16 @@ export default function Sidebar({ handleSelectChat }) {
         doSignOut();
     }
 
-
-
     return (
         <div className={classes.sidebar}>
             <Link to='edit-profile'>
                 <div className={classes.account__detail}>
                     <div className={classes.currentUser_profile__image}>
-                        {cloudName && userData?.photoUrl ? (
+                        {cloudName && userData?.photoURL ? (
                             <div className={classes.user__img}>
                                 <Image
                                     cloudName={cloudName}
-                                    publicId={userData.photoUrl}
+                                    publicId={userData.photoURL}
                                     alt="Profile Image"
                                     crop="thumb"
                                     gravity="face"
@@ -228,9 +225,10 @@ export default function Sidebar({ handleSelectChat }) {
                         <p>{foundUser.userName}</p>
                     </div>
                 ) : null}
-                {Array.isArray(chats) && chats.length > 0 && (
-                    <ul className={classes.chat__list}>
-                        {chats.map((chat) =>
+                <ul className={classes.chat__list}>
+                    {Array.isArray(chats) && chats.length > 0 &&
+
+                        chats.map((chat) =>
                         (
                             <div
                                 key={chat.id}
@@ -273,10 +271,10 @@ export default function Sidebar({ handleSelectChat }) {
                                     <p className={classes.user_info__lastMessage}>{chat.lastMessage}</p>
                                 </div>
                             </div>
-                        ))}
-                    </ul>
+                        ))
+                    }
+                </ul>
 
-                )}
             </div>
             <button className={classes.signout__btn} onClick={handleSignOut}>Sign out</button>
         </div >

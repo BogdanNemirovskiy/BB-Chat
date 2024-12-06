@@ -15,13 +15,6 @@ import { auth, db } from "./firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 
-// export const doCreateUserWithEmailAndPassword = async (email, password) => {
-//     return createUserWithEmailAndPassword(auth, email, password);
-// };
-
-
-
-
 export const doCreateUserWithEmailAndPassword = async (email, password, userName) => {
     if (!userName) {
         throw new Error("Username is required.");
@@ -63,18 +56,23 @@ export const doSignInWithGoogle = async () => {
 
         if (!docSnap.exists()) {
             await setDoc(userRef, {
-                userName: user.displayName || "Google User",
+                userName: user.displayName || "User_" + user.uid,
                 email: user.email,
                 createdAt: new Date(),
+                providerId: user.providerData[0].providerId,
+                photoURL: user.photoURL,
             });
             console.log("New Google user added to Firestore.");
         } else {
             console.log("User already exists in Firestore.");
         }
 
+        console.log(user);
+
+
         return { user, error: null };
     } catch (error) {
-        console.error("Google sign-in error:", error.message);
+        console.error("GitHub sign-in error:", error.message);
         return { user: null, error };
     }
 };
@@ -90,9 +88,11 @@ export const doSignInWithGitHub = async () => {
 
         if (!docSnap.exists()) {
             await setDoc(userRef, {
-                userName: user.displayName || "GitHub User",
+                userName: user.displayName || "User_" + user.uid,
                 email: user.email,
                 createdAt: new Date(),
+                providerId: user.providerData[0].providerId,
+                photoURL: user.photoURL,
             });
             console.log("New GitHub user added to Firestore.");
         } else {
@@ -105,21 +105,6 @@ export const doSignInWithGitHub = async () => {
         return { user: null, error };
     }
 };
-
-
-
-export const doSignInWithMicrosoft = async () => {
-    const provider = new OAuthProvider("microsoft.com");
-
-    try {
-        const result = await signInWithPopup(auth, provider);
-        return result;
-    } catch (error) {
-        console.error("Error during Microsoft sign-in:", error);
-        return { error };
-    }
-};
-
 
 export const doSignInWithEmailAndPassword = async (email, password) => {
     try {

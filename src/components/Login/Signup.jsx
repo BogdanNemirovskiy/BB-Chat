@@ -70,18 +70,6 @@ export default function Signup() {
         setIsSigningIn(false);
     }
 
-    const onMicrosoftSignIn = async (e) => {
-        e.preventDefault();
-        const { user, error } = await doSignInWithMicrosoft();
-        if (error) {
-            setSignInError('Error with Microsoft sign-in. Please try again.');
-        } else {
-            // setUserLoggedIn(true);
-            navigate('/');
-        }
-        setIsSigningIn(false);
-    };
-
     return (
         <div className={classes.login__menu}>
             <div className={classes.logo}>
@@ -123,7 +111,6 @@ export default function Signup() {
                 <div className={classes.sign_up__withIcons}>
                     <Icon icon="flat-color-icons:google" onClick={onGoogleSignIn} />
                     <Icon icon="simple-icons:github" style={{ color: 'black' }} onClick={onGitHubSignIn} />
-                    <Icon icon="logos:microsoft-icon" onClick={onMicrosoftSignIn} />
                 </div>
             </div>
 

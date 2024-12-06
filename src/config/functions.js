@@ -1,5 +1,7 @@
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { auth, db } from "./firebaseConfig";
+
+
 
 export const getUserData = async () => {
     try {
@@ -56,3 +58,12 @@ export const getUserChats = async () => {
 };
 
 
+export const handleSaveToFirestore = async (currentUserUid, updatedInfo) => {
+    try {
+        const userDoc = doc(db, 'users', currentUserUid);
+        await updateDoc(userDoc, updatedInfo)
+
+    } catch (error) {
+        console.error('Error saving user data:', error);
+    }
+}
