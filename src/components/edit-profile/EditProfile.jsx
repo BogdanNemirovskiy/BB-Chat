@@ -87,14 +87,14 @@ export default function EditProfile() {
             const uploadedImageUrl = response.data.secure_url;
 
             const userDoc = doc(db, 'users', currentUser.uid);
-            await updateDoc(userDoc, { photoUrl: uploadedImageUrl, photoPublicId: publicId });
+            await updateDoc(userDoc, { photoURL: uploadedImageUrl, photoPublicId: publicId });
 
             setUserData((prevData) => ({
                 ...prevData,
-                photoUrl: uploadedImageUrl,
+                photoURL: uploadedImageUrl,
                 photoPublicId: publicId,
             }));
-            currentUser.photoUrl = uploadedImageUrl;
+            currentUser.photoURL = uploadedImageUrl;
         } catch (error) {
             console.error('Error uploading to Cloudinary:', error);
         }
@@ -118,12 +118,12 @@ export default function EditProfile() {
                 onClick={() => navigate(-1)}
                 className={classes.go_back__btn}> <Icon icon="weui:arrow-filled" />Go back</div>
             <div className={classes.edit__profile}>
-                <div className={cloudName && userData?.photoUrl ? classes.profile__image : classes.no_profile__image} onClick={handleImageClick}>
-                    {cloudName && userData?.photoUrl ? (
+                <div className={cloudName && userData?.photoURL ? classes.profile__image : classes.no_profile__image} onClick={handleImageClick}>
+                    {cloudName && userData?.photoURL ? (
                         <div style={{ width: "14rem", height: "14rem", overflow: "hidden", borderRadius: "50%", paddingDown: '1rem' }}>
                             <Image
                                 cloudName={cloudName}
-                                publicId={userData.photoUrl}
+                                publicId={userData.photoURL}
                                 alt="Profile Image"
                                 crop="thumb"
                                 gravity="face"

@@ -3,10 +3,9 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contex/authContex/index';
 import { db } from '../../config/firebaseConfig';
-import { collection, addDoc, query, orderBy, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 import classes from './MessageBoard.module.sass';
-
 
 export default function MessageBoard({ selectedChat }) {
     const { currentUser } = useAuth();
@@ -25,7 +24,6 @@ export default function MessageBoard({ selectedChat }) {
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
                 setMessages(msgs);
-
                 setTimeout(scrollToBottom, 0);
             });
 
@@ -54,21 +52,13 @@ export default function MessageBoard({ selectedChat }) {
 
             const newMessageData = {
                 text: newMessage,
-                createdAt: new Date(),
+                createdAt: serverTimestamp(),
                 senderId: currentUser.uid,
                 displayName: currentUser.displayName || "User",
                 photoURL: currentUser.photoURL || ProfileImg,
             };
 
             await addDoc(messagesRef, newMessageData);
-
-            const chatDocRef = doc(db, "chats", selectedChat.chatId);
-            await updateDoc(chatDocRef, {
-                lastMessage: newMessageData.text,
-                lastMessageSenderId: currentUser.uid,
-                lastMessageTime: new Date(),
-            });
-
             setNewMessage("");
         } catch (error) {
             console.error("Error sending message:", error);
@@ -99,15 +89,27 @@ export default function MessageBoard({ selectedChat }) {
                         <div className={classes.select__chat}>Select a chat to start messaging</div>
                     </div>
                 ) : (
-                    <div className={classes.selected__chat}>
+                    <div className={classes.selected__chat} key={currentUser.uid}>
                         <div className={classes.messages}>
                             {messages.map((msg) => (
-                                <div
-                                    key={msg.id}
-                                    className={msg.senderId === currentUser.uid ? classes.user__sent : classes.user__received}
-                                >
-                                    <p className={classes.message__text}>{msg.text}</p>
-                                </div>
+                                <>
+                                    <div
+                                        key={msg.id}
+                                        className={msg.senderId === currentUser.uid ? classes.user__sent : classes.user__received}
+                                    >
+                                        <p className={classes.message__text}>{msg.text}</p>
+                                    </div>
+                                    <p className={msg.senderId === currentUser.uid ? classes.user__sent_time : classes.user__received_time}>
+                                        {msg.createdAt?.seconds
+                                            ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                            })
+                                            : 'Sending...'}
+                                    </p>
+
+                                </>
                             ))}
                             <div ref={messagesEndRef}></div>
                         </div>

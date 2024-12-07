@@ -79,7 +79,6 @@ export default function Sidebar({ handleSelectChat }) {
             fetchUserData();
             fetchChatsWithUsernames();
         }
-
     }, [currentUser]);
 
 
@@ -184,7 +183,12 @@ export default function Sidebar({ handleSelectChat }) {
                 </div>
 
             </Link>
-            <p>Messages</p>
+            <p
+                onClick={() => {
+                    console.log(currentUser);
+                    console.log(userData);
+                }}
+            >Messages</p>
             <div className={classes.search}>
                 <Icon icon="material-symbols:search" style={{ color: 'black' }} />
                 <input
