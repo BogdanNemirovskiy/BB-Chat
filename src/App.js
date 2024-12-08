@@ -4,6 +4,7 @@ import Signup from "./components/Login/Signup";
 import ChatPage from "./components/pages/ChatPage";
 import EditProfilePage from "./components/pages/EditProfilePage";
 import { AuthProvider, useAuth } from "./contex/authContex/index";
+import ErrorPage from "./components/pages/ErrorPage";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       </PrivateRoute>
     ),
   },
+  {
+    path: '*',
+    element: <ErrorPage />
+  }
 ]);
 
 export default function App() {
