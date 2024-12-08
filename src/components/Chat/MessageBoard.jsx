@@ -1,17 +1,20 @@
-import ProfileImg from '../../images/no-profile-picture.png';
+import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contex/authContex/index';
 import { db } from '../../config/firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
-
+import EmojiPicker from 'emoji-picker-react';
 import classes from './MessageBoard.module.sass';
+import ProfileImg from '../../images/no-profile-picture.png';
 
 export default function MessageBoard({ selectedChat }) {
     const { currentUser } = useAuth();
     const [isChatSelected, setIsChatSelected] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const emojiPickerRef = useRef(null);
+    const emojiIconRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -38,6 +41,24 @@ export default function MessageBoard({ selectedChat }) {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                emojiPickerRef.current &&
+                !emojiPickerRef.current.contains(event.target) &&
+                emojiIconRef.current &&
+                !emojiIconRef.current.contains(event.target)
+            ) {
+                setShowEmojiPicker(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -63,6 +84,10 @@ export default function MessageBoard({ selectedChat }) {
         } catch (error) {
             console.error("Error sending message:", error);
         }
+    };
+
+    const handleEmojiClick = (emojiObject) => {
+        setNewMessage((prevMessage) => prevMessage + emojiObject.emoji);
     };
 
     return (
@@ -92,9 +117,8 @@ export default function MessageBoard({ selectedChat }) {
                     <div className={classes.selected__chat} key={currentUser.uid}>
                         <div className={classes.messages}>
                             {messages.map((msg) => (
-                                <>
+                                <React.Fragment key={msg.id}>
                                     <div
-                                        key={msg.id}
                                         className={msg.senderId === currentUser.uid ? classes.user__sent : classes.user__received}
                                     >
                                         <p className={classes.message__text}>{msg.text}</p>
@@ -108,11 +132,11 @@ export default function MessageBoard({ selectedChat }) {
                                             })
                                             : 'Sending...'}
                                     </p>
-
-                                </>
+                                </React.Fragment>
                             ))}
                             <div ref={messagesEndRef}></div>
                         </div>
+
                         <div className={classes.chat__input}>
                             <Icon icon="icon-park-outline:link" style={{ color: "black" }} className={classes.link} />
                             <input
@@ -123,9 +147,22 @@ export default function MessageBoard({ selectedChat }) {
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                             />
+                            <div className={classes.emoji__picker} ref={emojiPickerRef}>
+                                <Icon
+                                    icon="emojione:smiling-face"
+                                    ref={emojiIconRef}
+                                    style={{ color: "#000", cursor: "pointer" }}
+                                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                />
+                                {showEmojiPicker && (
+                                    <div className={classes.emoji__panel}>
+                                        <EmojiPicker onEmojiClick={handleEmojiClick} />
+                                    </div>
+                                )}
+                            </div>
                             <Icon
                                 icon="ic:baseline-send"
-                                style={{ color: "black" }}
+                                style={{ color: "black", cursor: "pointer" }}
                                 className={classes.baseline__send}
                                 onClick={handleSendMessage}
                             />
