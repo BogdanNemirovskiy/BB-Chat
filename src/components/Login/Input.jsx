@@ -39,9 +39,14 @@ export default function Input({
             />
             {type === 'password' ? <Icon
                 onClick={togglePasswordVisibility}
-                icon={isPasswordVisible ? 'mdi:eye-off' : 'mdi:eye'}
+                icon={isPasswordVisible ? 'mdi:eye' : 'mdi:eye-off'}
+                className={classes.eye__icon}
             /> : null}
-            {isTouched && error && <p className={classes.error}>{error}</p>}
+            {isTouched && error && (
+                <p className={`${classes.error} ${type === 'password' ? classes['has-eye-icon'] : ''}`}>
+                    {error}
+                </p>
+            )}
         </div>
     );
 }

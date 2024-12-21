@@ -1,15 +1,27 @@
 .input__container
+    position: relative
     display: flex
     align-items: center
     width: 42.5rem
     min-width: 15rem
 
-    svg
-        position: relative
-        right: 2.5rem
-        height: 100%
+    .eye__icon
+        position: absolute
+        right: 5.2rem
+        height: 1.5rem
         width: 1.5rem
         color: #ADADAD
+        cursor: pointer
+
+    .error
+        position: absolute
+        right: 2rem
+        font-size: 1.5rem
+        color: red
+        cursor: default
+
+        &.has-eye-icon
+            right: 2rem
 
 .input
     font-size: 1.25rem
@@ -22,7 +34,34 @@
     width: 90%
     box-sizing: border-box
 
-.error
-    margin-left: 1.5rem
-    font-size: 1.5rem
-    color: red
+@media (max-width: 600px)
+
+    .input__container
+        justify-content: center
+
+        .eye__icon
+            right: 12rem
+
+        .error
+            right: 9.5rem
+
+            svg
+                height: 20px
+
+            &.has-eye-icon
+                right: 9.5rem
+
+                svg
+                    height: 20px
+
+        .input
+            font-size: 1rem
+            width: 20rem
+            margin: .75rem 0
+            padding: 1.15rem 1.25rem 1rem 1.25rem
+
+@media (max-width: 400px)
+
+    .input__container
+        svg
+            right: 0rem
