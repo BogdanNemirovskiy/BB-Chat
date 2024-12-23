@@ -120,7 +120,7 @@ export default function EditProfile() {
             <div className={classes.edit__profile}>
                 <div className={cloudName && userData?.photoURL ? classes.profile__image : classes.no_profile__image} onClick={handleImageClick}>
                     {cloudName && userData?.photoURL ? (
-                        <div style={{ width: "14rem", height: "14rem", overflow: "hidden", borderRadius: "50%", paddingDown: '1rem' }}>
+                        <div className={classes.user__photo}>
                             <Image
                                 cloudName={cloudName}
                                 publicId={userData.photoURL}
@@ -153,6 +153,7 @@ export default function EditProfile() {
                     <UserInfo
                         info="Email"
                         userInfo={currentUser.email || ''}
+                        onSave={(value) => handleFieldChange('email', value)}
                     />
                     <UserInfo
                         info="Address"
