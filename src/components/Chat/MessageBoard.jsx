@@ -7,7 +7,7 @@ import EmojiPicker from 'emoji-picker-react';
 import classes from './MessageBoard.module.sass';
 import ProfileImg from '../../images/no-profile-picture.png';
 
-export default function MessageBoard({ selectedChat }) {
+export default function MessageBoard({ selectedChat, setSelectedChat }) {
     const { currentUser } = useAuth();
     const [isChatSelected, setIsChatSelected] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -16,6 +16,8 @@ export default function MessageBoard({ selectedChat }) {
     const emojiPickerRef = useRef(null);
     const emojiIconRef = useRef(null);
     const messagesEndRef = useRef(null);
+
+    const [isMobileVersion, setIsMobileVersion] = useState(false);
 
     useEffect(() => {
         if (selectedChat) {
@@ -36,6 +38,23 @@ export default function MessageBoard({ selectedChat }) {
             setMessages([]);
         }
     }, [selectedChat]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileVersion(window.innerWidth < 768);
+        };
+
+        handleResize();
+
+        console.log("Adding resize listener");
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            console.log("Removing resize listener");
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
 
     useEffect(() => {
         scrollToBottom();
@@ -90,21 +109,53 @@ export default function MessageBoard({ selectedChat }) {
         setNewMessage((prevMessage) => prevMessage + emojiObject.emoji);
     };
 
+    const handleGoBack = () => {
+        setSelectedChat(null);
+    };
+
+
     return (
         <div className={classes.message__board}>
             {isChatSelected && selectedChat?.selectedUser && (
                 <div className={classes.chat__header}>
-                    <div className={classes.header__profile}>
-                        <img
-                            src={selectedChat.selectedUser.photoURL || ProfileImg}
-                            alt="User profile"
-                            className={classes.profile__image}
-                        />
-                        <p className={classes.profile__name}>
-                            {selectedChat.selectedUser.userName || "User"}
-                        </p>
+                    {isMobileVersion ?
+                        <div className={classes.header__profile}>
+                            <p className={classes.profile__name}>
+                                {selectedChat.selectedUser.userName || "User"}
+                            </p>
+                            <img
+                                src={selectedChat.selectedUser.photoURL || ProfileImg}
+                                alt="User profile"
+                                className={classes.profile__image}
+                            />
+                        </div>
+
+                        : <div className={classes.header__profile}>
+                            <img
+                                src={selectedChat.selectedUser.photoURL || ProfileImg}
+                                alt="User profile"
+                                className={classes.profile__image}
+                            />
+                            <p className={classes.profile__name}>
+                                {selectedChat.selectedUser.userName || "User"}
+                            </p>
+                        </div>
+
+                    }
+                    <div className={classes.header__icons}>
+                        {isMobileVersion ? (
+                            <>
+                                <Icon onClick={handleGoBack} icon='stash:angle-left' />
+                            </>
+                        ) : (
+                            <Icon
+                                icon="mingcute:more-2-fill"
+                                style={{ color: "black" }}
+                                className={classes.desktop__icon}
+                            />
+                        )}
                     </div>
-                    <Icon icon="mingcute:more-2-fill" style={{ color: "black" }} />
+
                 </div>
             )}
 
@@ -147,19 +198,16 @@ export default function MessageBoard({ selectedChat }) {
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                             />
-                            <div className={classes.emoji__picker} ref={emojiPickerRef}>
-                                <Icon
-                                    icon="emojione:smiling-face"
-                                    ref={emojiIconRef}
-                                    style={{ color: "#000", cursor: "pointer" }}
-                                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                />
-                                {showEmojiPicker && (
-                                    <div className={classes.emoji__panel}>
-                                        <EmojiPicker onEmojiClick={handleEmojiClick} />
-                                    </div>
-                                )}
-                            </div>
+                            {!isMobileVersion &&
+                                <div className={classes.emoji__picker} ref={emojiPickerRef}>
+                                    <Icon
+                                        icon="emojione:smiling-face"
+                                        ref={emojiIconRef}
+                                        style={{ color: "#000", cursor: "pointer" }}
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                    />
+                                </div>
+                            }
                             <Icon
                                 icon="ic:baseline-send"
                                 style={{ color: "black", cursor: "pointer" }}

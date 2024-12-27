@@ -22,6 +22,9 @@ export default function Sidebar({ handleSelectChat }) {
     const [cloudName] = useState(API.cloudinary.clould_name);
     const [userData, setUserData] = useState(null);
 
+    const [isMobileVersion, setIsMobileVersion] = useState(false);
+    const [isMobileInputActive, setIsMobileInputActive] = useState(false);
+
     const navigate = useNavigate();
 
 
@@ -54,8 +57,9 @@ export default function Sidebar({ handleSelectChat }) {
             );
 
             setChats(updatedChats);
-
         };
+
+
 
         const fetchUserData = async () => {
             try {
@@ -81,6 +85,21 @@ export default function Sidebar({ handleSelectChat }) {
         }
     }, [currentUser]);
 
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileVersion(window.innerWidth < 768);
+        };
+
+        handleResize();
+
+        console.log("Adding resize listener");
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            console.log("Removing resize listener");
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     const handleSearchChange = (e) => {
         setSearchInput(e.target.value);
@@ -155,133 +174,160 @@ export default function Sidebar({ handleSelectChat }) {
 
     return (
         <div className={classes.sidebar}>
-            <Link to='edit-profile'>
-                <div className={classes.account__detail}>
-                    <div className={classes.currentUser_profile__image}>
-                        {cloudName && userData?.photoURL ? (
-                            <div className={classes.user__img}>
-                                <Image
-                                    cloudName={cloudName}
-                                    publicId={userData.photoURL}
-                                    alt="Profile Image"
-                                    crop="thumb"
-                                    gravity="face"
-                                    width="100%"
-                                    height="100%"
-                                />
-                            </div>
-                        ) : (
-                            <img className={classes.no_profile__image} src={noProfileImage} alt="Default Profile" />
-                        )}
-                    </div>
-                    <div className={classes.account__info}>
-                        <p className={classes.username}>{currentUser.displayName}</p>
-                        <p className={classes.nickname}>
-                            @{currentUser?.displayName?.toLowerCase() || 'unknown'}
-                        </p>
+            {isMobileVersion ? (
+                <div className={classes.sidebar__header}>
+                    {!isMobileInputActive ? (
+                        <p>BB Chat</p>
+                    ) : (
+                        <input
+                            type="text"
+                            value={searchInput}
+                            onChange={handleSearchChange}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
+                            className={classes.mobile__input}
+                            placeholder="Search username..."
+                        />
+                    )}
+                    <div className={classes.mobile__search}>
+                        <Icon
+                            icon="material-symbols:search"
+                            style={{ color: 'black', cursor: 'pointer' }}
+                            onClick={() => setIsMobileInputActive((prev) => !prev)}
+                        />
                     </div>
                 </div>
-
-            </Link>
-            <p
-                onClick={() => {
-                    console.log(currentUser);
-                    console.log(userData);
-                }}
-            >Messages</p>
-            <div className={classes.search}>
-                <Icon icon="material-symbols:search" style={{ color: 'black' }} />
-                <input
-                    type="text"
-                    placeholder="Search username"
-                    value={searchInput}
-                    onChange={handleSearchChange}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
-                />
-            </div>
-            {error && <p className={classes.error}>{error}</p>}
-            <div>
-                {foundUser && foundUser.userName ? (
-                    <div
-                        className={classes.found__user}
-                        onClick={() => handleOpenChat(foundUser)}
-                    >
-                        <div className={classes.foundUser__image}>
-                            {foundUser.photoUrl ?
-                                (
+            ) : (
+                <Link to="edit-profile">
+                    <div className={classes.account__detail}>
+                        <div className={classes.currentUser_profile__image}>
+                            {cloudName && userData?.photoURL ? (
+                                <div className={classes.user__img}>
                                     <Image
                                         cloudName={cloudName}
-                                        publicId={foundUser.photoUrl}
+                                        publicId={userData.photoURL}
+                                        alt="Profile Image"
                                         crop="thumb"
                                         gravity="face"
                                         width="100%"
                                         height="100%"
-                                        alt={`${foundUser.userName}'s Profile`}
                                     />
+                                </div>
+                            ) : (
+                                <img
+                                    className={classes.no_profile__image}
+                                    src={noProfileImage}
+                                    alt="Default Profile"
+                                />
+                            )}
+                        </div>
+                        <div className={classes.account__info}>
+                            <p className={classes.username}>{currentUser.displayName}</p>
+                            <p className={classes.nickname}>
+                                @{currentUser?.displayName?.toLowerCase() || 'unknown'}
+                            </p>
+                        </div>
+                    </div>
+                </Link>
+            )}
+
+            {!isMobileVersion && <p className={classes.mobile__messagesTitle}>Messages</p>}
+
+            {!isMobileVersion && (
+                <div className={classes.search}>
+                    <Icon icon="material-symbols:search" style={{ color: 'black' }} />
+                    <input
+                        type="text"
+                        placeholder="Search username"
+                        value={searchInput}
+                        onChange={handleSearchChange}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
+                    />
+                </div>
+            )}
+
+            {error && <p className={classes.error}>{error}</p>}
+
+            {foundUser && foundUser.userName && (
+                <div
+                    className={classes.found__user}
+                    onClick={() => handleOpenChat(foundUser)}
+                >
+                    <div className={classes.foundUser__image}>
+                        {foundUser.photoUrl ? (
+                            <Image
+                                cloudName={cloudName}
+                                publicId={foundUser.photoUrl}
+                                crop="thumb"
+                                gravity="face"
+                                width="100%"
+                                height="100%"
+                                alt={`${foundUser.userName}'s Profile`}
+                            />
+                        ) : (
+                            <div className={classes.founder__no_profile_img}>
+                                <img src={noProfileImage} alt="Default Profile" />
+                            </div>
+                        )}
+                    </div>
+                    <p>{foundUser.userName}</p>
+                </div>
+            )}
+
+            <ul className={classes.chat__list}>
+                {Array.isArray(chats) && chats.length > 0 ? (
+                    chats.map((chat) => (
+                        <div
+                            key={chat.id}
+                            className={classes.user__item}
+                            onClick={() =>
+                                handleSelectChat({
+                                    chatId: chat.id,
+                                    selectedUser: chat.user,
+                                })
+                            }
+                        >
+                            <div className={classes.profile_image}>
+                                {chat.user.photoURL !== noProfileImage ? (
+                                    <div className={classes.profile_img}>
+                                        <Image
+                                            cloudName={cloudName}
+                                            publicId={chat.user?.photoURL}
+                                            alt={`${chat.user?.userName}'s Profile`}
+                                            crop="thumb"
+                                            gravity="face"
+                                            width="100%"
+                                            height="100%"
+                                        />
+                                    </div>
                                 ) : (
-                                    <div className={classes.founder__no_profile_img}>
+                                    <div className={classes.no_profile_img}>
                                         <img
-                                            src={noProfileImage} alt="Default Profile"
+                                            src={noProfileImage}
+                                            alt="Default Profile"
                                         />
                                     </div>
                                 )}
-                        </div>
-                        <p>{foundUser.userName}</p>
-                    </div>
-                ) : null}
-                <ul className={classes.chat__list}>
-                    {Array.isArray(chats) && chats.length > 0 &&
-
-                        chats.map((chat) =>
-                        (
-                            <div
-                                key={chat.id}
-                                className={classes.user__item}
-                                onClick={() =>
-                                    handleSelectChat({
-                                        chatId: chat.id,
-                                        selectedUser: chat.user,
-                                    })
-                                }
-                            >
-                                <div className={classes.profile_image}>
-                                    {chat.user.photoURL !== noProfileImage ?
-                                        (
-                                            <div className={classes.profile_img}>
-                                                <Image
-                                                    cloudName={cloudName}
-                                                    publicId={chat.user?.photoURL}
-                                                    onClick={() => console.log(noProfileImage)
-                                                    }
-                                                    alt={`${chat.user?.userName}'s Profile`}
-                                                    crop="thumb"
-                                                    gravity="face"
-                                                    width="100%"
-                                                    height="100%"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className={classes.no_profile_img}>
-                                                <img
-                                                    src={noProfileImage} alt="Default Profile"
-                                                />
-                                            </div>
-                                        )}
-                                </div>
-                                <div className={classes.user_info}>
-                                    <p className={classes.user_info__title}>
-                                        {chat.user?.userName || 'Unknown User'}
-                                    </p>
-                                    <p className={classes.user_info__lastMessage}>{chat.lastMessage}</p>
-                                </div>
                             </div>
-                        ))
-                    }
-                </ul>
+                            <div className={classes.user_info}>
+                                <p className={classes.user_info__title}>
+                                    {chat.user?.userName || 'Unknown User'}
+                                </p>
+                                <p className={classes.user_info__lastMessage}>
+                                    {chat.lastMessage || 'No messages yet'}
+                                </p>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className={classes.noChats}>No chats available</p>
+                )}
+            </ul>
 
-            </div>
-            <button className={classes.signout__btn} onClick={handleSignOut}>Sign out</button>
-        </div >
+            <button className={classes.signout__btn} onClick={handleSignOut}>
+                Sign out
+            </button>
+        </div>
+
     );
 }
 

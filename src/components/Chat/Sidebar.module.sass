@@ -172,3 +172,89 @@ p
 
 .no_profile__image
     width: 64px
+
+// Mobile styles
+
+.sidebar__header
+    display: flex
+    justify-content: center
+    align-items: center
+    background-color: #FFD700
+    width: 100%
+    border-radius: 0 0 5px 5px
+
+    p
+        font-size: 1.35rem
+        font-weight: bold
+        color: #000
+        margin: 0
+
+.mobile__input
+    background-color: #FFD700
+    border: 1px solid #FFD700
+    border-bottom: 1px solid #534700
+    font-size: 1.25rem
+    width: 10rem
+
+// Mobile styles
+
+@media (max-width: 600px)
+
+    .sidebar__header
+        padding: 2rem 0
+
+    .mobile__search
+
+        svg
+            height: 25px
+            width: auto
+            margin-bottom: .5rem
+            position: absolute
+            right: 20px
+            top: 2rem
+
+    .sidebar
+        border: 1px solid #242529
+        margin: -1px 0 6px 0
+        width: 100%
+
+    .search
+        input
+            width: 18rem
+
+    .chat__list
+        height: 75vh
+        max-height: 75vh
+
+    .profile_image
+    
+        
+
+
+@media (max-width: 400px)
+
+    .sidebar__header
+        padding: 1.5rem 0
+
+    .mobile__search
+
+        svg
+            height: 20px
+            width: auto
+            margin-bottom: .5rem
+            position: absolute
+            right: 10px
+            top: 1.7rem
+
+    .sidebar
+        border: 1px solid #242529
+        margin: -1px 0 6px 0
+        width: 100%
+
+    .search
+        input
+            width: 18rem
+
+    .chat__list
+        height: 70vh
+        max-height: 70vh

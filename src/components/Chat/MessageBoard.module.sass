@@ -14,9 +14,10 @@
     border-radius: 10px
     padding: 0.5rem 1rem
 
+.header__icons
     svg
-        height: auto
-        width: 2.5rem
+        height: 2.5rem
+        width: auto
         margin-right: 1.5rem
         cursor: pointer
 
@@ -33,6 +34,10 @@
         margin: 0 0 0 1.25rem
         font-size: 2.125rem
         font-weight: 500
+
+.header__icons
+    display: flex
+
 .chat
     width: 100%
     height: 100%
@@ -151,3 +156,84 @@
     bottom: 80px
     right: 1rem
     z-index: 1000
+
+@media (max-width: 600px)
+.message__board
+    padding: 0
+    margin: 0
+
+    .chat__header
+        height: 4.5rem
+        justify-content: center
+
+        width: 100%
+        border-radius: 0
+        flex-direction: row-reverse
+
+    .header__profile
+        flex-direction: row-reverse
+        margin-right: 4rem
+
+        p
+            position: relative
+            right: .7rem
+            font-size: 1.35rem
+
+        img
+            position: relative
+            top: .3rem
+            height: 60px
+            width: 60px
+
+    .header__icons
+        margin-top: .2rem
+        cursor: pointer
+
+        svg
+            position: absolute
+            left: .5rem
+            top: 1%
+            height: auto
+            width: 4rem
+
+    .chat__input
+        position: absolute
+        bottom: 0
+        border-radius: 0
+        gap: .5rem
+        width: 93%
+
+    .messages
+        height: 82vh
+
+@media (max-width: 400px)
+
+    .message__board
+        padding: 0
+        margin: 0
+
+    .header__profile
+        margin-right: 4rem
+
+        p
+            right: .7rem
+            font-size: 1.25rem
+
+        img
+            top: .3rem
+            height: 57px
+            width: 57px
+
+    .header__icons
+        margin-top: .2rem
+        cursor: pointer
+
+        svg
+            position: absolute
+            left: .5rem
+            top: 2%
+            height: auto
+            width: 4rem
+
+    .messages
+        height: 72vh

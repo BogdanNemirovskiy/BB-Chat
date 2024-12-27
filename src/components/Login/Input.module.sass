@@ -40,6 +40,33 @@
         justify-content: center
 
         .eye__icon
+            right: 11.5rem
+            height: 20px
+
+        .error
+            right: 9rem
+
+            svg
+                height: 20px
+
+            &.has-eye-icon
+                right: 9rem
+
+                svg
+                    height: 20px
+
+        .input
+            font-size: 1rem
+            width: 21rem
+            margin: .75rem 0
+            padding: 1rem 1.15rem 1rem 1.15rem
+
+@media (max-width: 400px)
+
+    .input__container
+        svg
+            right: 0rem
+        .eye__icon
             right: 13rem
             height: 20px
 
@@ -60,9 +87,3 @@
             width: 18.5rem
             margin: .75rem 0
             padding: 1rem 1.15rem 1rem 1.15rem
-
-@media (max-width: 400px)
-
-    .input__container
-        svg
-            right: 0rem

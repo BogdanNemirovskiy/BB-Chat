@@ -76,7 +76,7 @@ export default function Signup() {
                 <img src={logo} alt="Logo" />
                 <h1>BB Chat</h1>
             </div>
-            <p className={classes.sign_in__text}>Sign up</p>
+            <p className={classes.sign_up__text}>Sign up</p>
 
             <Input
                 type="text"
