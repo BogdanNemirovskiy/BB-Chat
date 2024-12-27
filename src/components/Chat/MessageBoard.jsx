@@ -40,20 +40,33 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
     }, [selectedChat]);
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobileVersion(window.innerWidth < 768);
+        const handleViewportChange = () => {
+            const chatInput = document.querySelector(`.${classes.chat__input}`);
+            if (chatInput) {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+                chatInput.style.bottom = `${window.visualViewport.offsetTop}px`;
+            }
         };
 
-        handleResize();
+        const resetInputPosition = () => {
+            const chatInput = document.querySelector(`.${classes.chat__input}`);
+            if (chatInput) {
+                chatInput.style.bottom = '0px';
+            }
+        };
 
-        console.log("Adding resize listener");
-        window.addEventListener("resize", handleResize);
+        window.visualViewport?.addEventListener('resize', handleViewportChange);
+        window.visualViewport?.addEventListener('scroll', handleViewportChange);
+        window.addEventListener('focusout', resetInputPosition);
 
         return () => {
-            console.log("Removing resize listener");
-            window.removeEventListener("resize", handleResize);
+            window.visualViewport?.removeEventListener('resize', handleViewportChange);
+            window.visualViewport?.removeEventListener('scroll', handleViewportChange);
+            window.removeEventListener('focusout', resetInputPosition);
         };
     }, []);
+
 
 
     useEffect(() => {
