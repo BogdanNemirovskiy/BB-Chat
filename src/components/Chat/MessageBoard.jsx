@@ -40,33 +40,34 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
     }, [selectedChat]);
 
     useEffect(() => {
-        const handleViewportChange = () => {
-            const chatInput = document.querySelector(`.${classes.chat__input}`);
-            if (chatInput) {
-                const vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-                chatInput.style.bottom = `${window.visualViewport.offsetTop}px`;
-            }
+        const handleResize = () => {
+            setIsMobileVersion(window.innerWidth < 768);
         };
 
-        const resetInputPosition = () => {
-            const chatInput = document.querySelector(`.${classes.chat__input}`);
-            if (chatInput) {
-                chatInput.style.bottom = '0px';
-            }
-        };
+        handleResize();
 
-        window.visualViewport?.addEventListener('resize', handleViewportChange);
-        window.visualViewport?.addEventListener('scroll', handleViewportChange);
-        window.addEventListener('focusout', resetInputPosition);
+        console.log("Adding resize listener");
+        window.addEventListener("resize", handleResize);
 
         return () => {
-            window.visualViewport?.removeEventListener('resize', handleViewportChange);
-            window.visualViewport?.removeEventListener('scroll', handleViewportChange);
-            window.removeEventListener('focusout', resetInputPosition);
+            console.log("Removing resize listener");
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
+
+    useEffect(() => {
+        const handleKeyboardShow = () => document.body.classList.add('keyboard-active');
+        const handleKeyboardHide = () => document.body.classList.remove('keyboard-active');
+
+        window.addEventListener('focusin', handleKeyboardShow);
+        window.addEventListener('focusout', handleKeyboardHide);
+
+        return () => {
+            window.removeEventListener('focusin', handleKeyboardShow);
+            window.removeEventListener('focusout', handleKeyboardHide);
+        };
+    }, []);
 
 
     useEffect(() => {

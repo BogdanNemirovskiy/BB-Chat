@@ -15,8 +15,10 @@
     padding: 0.5rem 1rem
 
 .header__icons
+    display: flex
+
     svg
-        height: 2.5rem
+        height: 3rem
         width: auto
         margin-right: 1.5rem
         cursor: pointer
@@ -34,9 +36,6 @@
         margin: 0 0 0 1.25rem
         font-size: 2.125rem
         font-weight: 500
-
-.header__icons
-    display: flex
 
 .chat
     width: 100%
@@ -158,9 +157,9 @@
     z-index: 1000
 
 @media (max-width: 600px)
-.message__board
-    padding: 0
-    margin: 0
+    .message__board
+        padding: 0
+        margin: 0
 
     .chat__header
         height: 4.5rem
@@ -191,20 +190,19 @@
 
         svg
             position: absolute
-            left: .5rem
-            top: 1%
+            right: .5rem
+            top: 2%
             height: auto
-            width: 4rem
+            width: 2.5rem
 
     .chat__input
         position: fixed
-        bottom: 0
+        bottom: env(safe-area-inset-bottom, 0)
         width: 100%
         background-color: #333
         padding: 1rem
         border-radius: 25px
         gap: 1rem
-        transition: bottom 0.3s ease-in-out
 
     .messages
         height: 82vh
