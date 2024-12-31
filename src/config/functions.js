@@ -1,8 +1,6 @@
 import { doc, getDoc, collection, query, where, getDocs, updateDoc } from "firebase/firestore";
 import { auth, db } from "./firebaseConfig";
 
-
-
 export const getUserData = async () => {
     try {
         const uid = auth.currentUser?.uid;

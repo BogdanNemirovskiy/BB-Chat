@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useAuth } from '../../contex/authContex/index';
 import { db } from '../../config/firebaseConfig';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import EmojiPicker from 'emoji-picker-react';
 import classes from './MessageBoard.module.sass';
 import ProfileImg from '../../images/no-profile-picture.png';
 
-export default function MessageBoard({ selectedChat, setSelectedChat }) {
+export default function MessageBoard({ selectedChat, setSelectedChat, setLastMessage }) {
     const { currentUser } = useAuth();
     const [isChatSelected, setIsChatSelected] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -46,15 +46,12 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
 
         handleResize();
 
-        console.log("Adding resize listener");
         window.addEventListener("resize", handleResize);
 
         return () => {
-            console.log("Removing resize listener");
             window.removeEventListener("resize", handleResize);
         };
     }, []);
-
 
     useEffect(() => {
         const handleKeyboardShow = () => document.body.classList.add('keyboard-active');
@@ -68,7 +65,6 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
             window.removeEventListener('focusout', handleKeyboardHide);
         };
     }, []);
-
 
     useEffect(() => {
         scrollToBottom();
@@ -103,6 +99,7 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
 
         try {
             const messagesRef = collection(db, "chats", selectedChat.chatId, "messages");
+            const chatDocRef = doc(db, "chats", selectedChat.chatId);
 
             const newMessageData = {
                 text: newMessage,
@@ -113,7 +110,14 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
             };
 
             await addDoc(messagesRef, newMessageData);
-            setNewMessage("");
+
+            await updateDoc(chatDocRef, {
+                lastMessage: newMessage,
+                lastMessageTime: serverTimestamp(),
+                lastMessageSenderId: currentUser.uid,
+            });
+
+            setNewMessage(""); // Reset input after sending
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -123,16 +127,16 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
         setNewMessage((prevMessage) => prevMessage + emojiObject.emoji);
     };
 
-    const handleGoBack = () => {
-        setSelectedChat(null);
-    };
 
+    const handleEmojiToggle = () => {
+        setShowEmojiPicker((prevState) => !prevState); // Toggle visibility of emoji picker
+    };
 
     return (
         <div className={classes.message__board}>
             {isChatSelected && selectedChat?.selectedUser && (
                 <div className={classes.chat__header}>
-                    {isMobileVersion ?
+                    {isMobileVersion ? (
                         <div className={classes.header__profile}>
                             <p className={classes.profile__name}>
                                 {selectedChat.selectedUser.userName || "User"}
@@ -143,8 +147,8 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
                                 className={classes.profile__image}
                             />
                         </div>
-
-                        : <div className={classes.header__profile}>
+                    ) : (
+                        <div className={classes.header__profile}>
                             <img
                                 src={selectedChat.selectedUser.photoURL || ProfileImg}
                                 alt="User profile"
@@ -154,13 +158,10 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
                                 {selectedChat.selectedUser.userName || "User"}
                             </p>
                         </div>
-
-                    }
+                    )}
                     <div className={classes.header__icons}>
                         {isMobileVersion ? (
-                            <>
-                                <Icon onClick={handleGoBack} icon='stash:angle-left' />
-                            </>
+                            <Icon onClick={() => setSelectedChat(null)} icon='stash:angle-left' />
                         ) : (
                             <Icon
                                 icon="mingcute:more-2-fill"
@@ -169,7 +170,6 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
                             />
                         )}
                     </div>
-
                 </div>
             )}
 
@@ -201,7 +201,20 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
                             ))}
                             <div ref={messagesEndRef}></div>
                         </div>
-
+                        {showEmojiPicker && (
+                            <div className={classes.emoji__panel} ref={emojiPickerRef}>
+                                <EmojiPicker
+                                    onEmojiClick={handleEmojiClick}
+                                    disableAutoFocus={true}
+                                    pickerStyle={{
+                                        position: 'absolute',
+                                        bottom: '50px',
+                                        right: '20px',
+                                        zIndex: 1000,
+                                    }}
+                                />
+                            </div>
+                        )}
                         <div className={classes.chat__input}>
                             <Icon icon="icon-park-outline:link" style={{ color: "black" }} className={classes.link} />
                             <input
@@ -212,16 +225,16 @@ export default function MessageBoard({ selectedChat, setSelectedChat }) {
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                             />
-                            {!isMobileVersion &&
-                                <div className={classes.emoji__picker} ref={emojiPickerRef}>
+                            {!isMobileVersion && (
+                                <div className={classes.emoji__picker} ref={emojiIconRef}>
                                     <Icon
                                         icon="emojione:smiling-face"
                                         ref={emojiIconRef}
                                         style={{ color: "#000", cursor: "pointer" }}
-                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        onClick={handleEmojiToggle}
                                     />
                                 </div>
-                            }
+                            )}
                             <Icon
                                 icon="ic:baseline-send"
                                 style={{ color: "black", cursor: "pointer" }}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useAuth } from '../../contex/authContex';
-import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import noProfileImage from '../../images/no-profile-picture.png';
 import classes from './Sidebar.module.sass';
 import { getUserChats } from '../../config/functions';
@@ -38,9 +38,21 @@ export default function Sidebar({ handleSelectChat }) {
                     const otherUserRef = doc(db, 'users', otherUserId);
                     const otherUserSnap = await getDoc(otherUserRef);
 
-
                     if (otherUserSnap.exists()) {
                         const otherUserData = otherUserSnap.data();
+
+                        const chatRef = doc(db, 'chats', chat.id);
+                        const unsubscribe = onSnapshot(chatRef, (doc) => {
+                            const updatedChat = doc.data();
+                            setChats((prevChats) => {
+                                return prevChats.map((prevChat) => {
+                                    if (prevChat.id === chat.id) {
+                                        return { ...prevChat, lastMessage: updatedChat.lastMessage };
+                                    }
+                                    return prevChat;
+                                });
+                            });
+                        });
 
                         return {
                             ...chat,
@@ -58,6 +70,7 @@ export default function Sidebar({ handleSelectChat }) {
 
             setChats(updatedChats);
         };
+
 
 
 
@@ -322,6 +335,7 @@ export default function Sidebar({ handleSelectChat }) {
                     <p className={classes.noChats}>No chats available</p>
                 )}
             </ul>
+
 
             <button className={classes.signout__btn} onClick={handleSignOut}>
                 Sign out
