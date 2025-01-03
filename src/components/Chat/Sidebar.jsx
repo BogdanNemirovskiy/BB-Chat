@@ -189,6 +189,29 @@ export default function Sidebar({ handleSelectChat }) {
         <div className={classes.sidebar}>
             {isMobileVersion ? (
                 <div className={classes.sidebar__header}>
+                    <Link to="edit-profile">
+                        <div className={classes.currentUser_profile__image}>
+                            {cloudName && userData?.photoURL ? (
+                                <div className={classes.user__img}>
+                                    <Image
+                                        cloudName={cloudName}
+                                        publicId={userData.photoURL}
+                                        alt="Profile Image"
+                                        crop="thumb"
+                                        gravity="face"
+                                        width="100%"
+                                        height="100%"
+                                    />
+                                </div>
+                            ) : (
+                                <img
+                                    className={classes.no_profile__image}
+                                    src={noProfileImage}
+                                    alt="Default Profile"
+                                />
+                            )}
+                        </div>
+                    </Link>
                     {!isMobileInputActive ? (
                         <p>BB Chat</p>
                     ) : (

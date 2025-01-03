@@ -21,7 +21,6 @@ export default function EditProfile() {
     const [cloudName] = useState(API.cloudinary.clould_name);
     const navigate = useNavigate();
 
-
     useEffect(() => {
         const fetchUserData = async () => {
             setLoading(true);
@@ -46,23 +45,29 @@ export default function EditProfile() {
         if (currentUser) fetchUserData();
     }, [currentUser]);
 
-
     const handleFieldChange = (field, value) => {
         setLocalData((prevData) => ({ ...prevData, [field]: value }));
     };
 
     const handleSaveToFirestore = async () => {
         try {
+            setLoading(true);
             const userDoc = doc(db, 'users', currentUser.uid);
+
             await updateDoc(userDoc, localData);
+
             setUserData(localData);
             setError('');
-            navigate(-1);
+            navigate('/');
         } catch (err) {
             console.error('Error saving user data:', err);
             setError('Failed to save data. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
+
+
 
     const handleImageClick = () => {
         fileInputRef.current.click();
@@ -71,16 +76,16 @@ export default function EditProfile() {
     const handleImageChange = async (event) => {
         const selectedFile = event.target.files[0];
         if (!selectedFile) {
-            console.error("No file selected for upload.");
+            console.error('No file selected for upload.');
             return;
         }
 
         const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("upload_preset", "bbchat");
+        formData.append('file', selectedFile);
+        formData.append('upload_preset', 'bbchat');
 
         try {
-            const response = await axios.post("https://api.cloudinary.com/v1_1/dwszo0b7b/image/upload", formData);
+            const response = await axios.post('https://api.cloudinary.com/v1_1/dwszo0b7b/image/upload', formData);
             console.log('Upload success:', response.data);
 
             const publicId = response.data.public_id;
@@ -116,9 +121,15 @@ export default function EditProfile() {
         <>
             <div
                 onClick={() => navigate(-1)}
-                className={classes.go_back__btn}> <Icon icon="weui:arrow-filled" />Go back</div>
+                className={classes.go_back__btn}
+            >
+                <Icon icon="weui:arrow-filled" />Go back
+            </div>
             <div className={classes.edit__profile}>
-                <div className={cloudName && userData?.photoURL ? classes.profile__image : classes.no_profile__image} onClick={handleImageClick}>
+                <div
+                    className={cloudName && userData?.photoURL ? classes.profile__image : classes.no_profile__image}
+                    onClick={handleImageClick}
+                >
                     {cloudName && userData?.photoURL ? (
                         <div className={classes.user__photo}>
                             <Image
@@ -151,11 +162,6 @@ export default function EditProfile() {
                         onSave={(value) => handleFieldChange('userName', value)}
                     />
                     <UserInfo
-                        info="Email"
-                        userInfo={currentUser.email || ''}
-                        onSave={(value) => handleFieldChange('email', value)}
-                    />
-                    <UserInfo
                         info="Address"
                         userInfo={localData?.address || ''}
                         onSave={(value) => handleFieldChange('address', value)}
@@ -177,6 +183,5 @@ export default function EditProfile() {
                 </button>
             </div>
         </>
-
     );
 }

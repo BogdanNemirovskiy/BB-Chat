@@ -1,20 +1,29 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
 import classes from './UserInfo.module.sass';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function UserInfo({ info, userInfo, onSave }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editedValue, setEditedValue] = useState(userInfo);
+    const [editedValue, setEditedValue] = useState(userInfo || '');
+
+    useEffect(() => {
+        setEditedValue(userInfo || '');
+    }, [userInfo]);
 
     const handleSave = () => {
-        onSave(editedValue);
+        if (typeof onSave === 'function') {
+            onSave(editedValue);
+        } else {
+            console.error('onSave is not a function.');
+        }
         setIsEditing(false);
     };
 
     const handleCancel = () => {
-        setEditedValue(userInfo);
+        setEditedValue(userInfo || '');
         setIsEditing(false);
     };
+
     const inputType = info === 'DOB' ? 'date' : 'text';
 
     return (
@@ -25,7 +34,7 @@ export default function UserInfo({ info, userInfo, onSave }) {
                 <div className={classes.edit__container}>
                     <input
                         type={inputType}
-                        value={editedValue}
+                        value={editedValue || ''}
                         onChange={(e) => setEditedValue(e.target.value)}
                         className={classes.edit__input}
                         placeholder={`Enter ${info.toLowerCase()}`}
@@ -44,15 +53,13 @@ export default function UserInfo({ info, userInfo, onSave }) {
                     </li>
                 </div>
             ) : (
-                <li className={classes.li__info}>{userInfo || `No ${info}`}</li>
+                <li className={classes.li__info}>{editedValue || `No ${info}`}</li>
             )}
 
             {!isEditing && (
-                <li
-                    className={classes.icon__edit}
-                >
+                <li className={classes.icon__edit}>
                     <Icon
-                        onClick={() => setIsEditing(true    )}
+                        onClick={() => setIsEditing(true)}
                         icon="mdi:pencil"
                         style={{ color: '#ADADAD', cursor: 'pointer' }}
                     />
