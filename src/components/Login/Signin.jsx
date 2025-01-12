@@ -37,26 +37,36 @@ export default function Signin({ onToggleForm }) {
         setIsSigningIn(true);
         setSignInError(null);
 
-        const { user, error } = await doSignInWithEmailAndPassword(formData.email, formData.password);
-
-        if (error) {
-            if (error.code === 'auth/wrong-password') {
-                setSignInError('Incorrect password. Please try again.');
-            } else if (error.code === 'auth/user-not-found') {
-                setSignInError('No account found with this email.');
-            } else if (error.code === 'auth/invalid-credential') {
-                setSignInError('Invalid credentials. Please check and try again.');
-            } else {
-                setSignInError('Error signing in. Please try again later.');
-            }
+        const validationErrors = validateAllFields(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             setIsSigningIn(false);
-        } else {
-            // setUserLoggedIn(true);
-            console.log('user', user);
+            return;
+        }
 
-            navigate('/');
+        try {
+            const { user, error } = await doSignInWithEmailAndPassword(formData.email, formData.password);
+
+            if (error) {
+                if (error.code === 'auth/wrong-password') {
+                    setSignInError('Incorrect password. Please try again.');
+                } else if (error.code === 'auth/user-not-found') {
+                    setSignInError('No account found with this email.');
+                } else {
+                    setSignInError('Error signing in. Please try again later.');
+                }
+            } else {
+                console.log('user', user);
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Sign-in error:', err);
+            setSignInError('Unexpected error. Please try again later.');
+        } finally {
+            setIsSigningIn(false);
         }
     };
+
 
 
     const onGoogleSignIn = async (e) => {

@@ -1,36 +1,61 @@
-// Signup.jsx
 import React, { useState } from 'react';
 import Input from './Input';
 import classes from './Signup.module.sass';
 import logo from '../../images/logo.png';
 import { validateField } from './functions';
-import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, doSignInWithMicrosoft } from '../../config/auth';
+import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link, useNavigate } from 'react-router-dom';
+import { validateAllFields } from './functions';
+
+
 
 export default function Signup() {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [isRegistering, setIsRegistering] = useState(false);
     const [isSigningIn, setIsSigningIn] = useState(false);
-    const [signInError, setSignInError] = useState(false);
     const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-        if (!isRegistering) {
-            setIsRegistering(true);
-            try {
-                await doCreateUserWithEmailAndPassword(formData.email, formData.password, formData.username);
-                console.log("Registration successful");
-                navigate('/');
-            } catch (error) {
-                console.error("Registration failed:", error.message);
-            } finally {
-                setIsRegistering(false);
+        setIsRegistering(true);
+
+        const validationErrors = validateAllFields(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            setIsRegistering(false);
+            return;
+        }
+
+        try {
+            await doCreateUserWithEmailAndPassword(formData.email, formData.password, formData.username);
+            console.log("Registration successful");
+            navigate('/');
+        } catch (error) {
+            console.error("Registration failed:", error.message);
+
+            if (error.code === 'auth/email-already-in-use') {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    email: 'This email is already in use.',
+                }));
+            } else if (error.code === 'auth/weak-password') {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    password: 'Password is too weak. Use a stronger password.',
+                }));
+            } else {
+                setErrors((prevErrors) => ({
+                    ...prevErrors,
+                    general: 'Registration failed. Please try again later.',
+                }));
             }
+        } finally {
+            setIsRegistering(false);
         }
     };
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -47,7 +72,7 @@ export default function Signup() {
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
 
-        const { user, error } = await doSignInWithGoogle();
+        const { error } = await doSignInWithGoogle();
 
         if (error) {
             setIsSigningIn('Error with Google sign-in. Please try again.')
@@ -60,7 +85,7 @@ export default function Signup() {
     const onGitHubSignIn = async (e) => {
         e.preventDefault();
 
-        const { user, error } = await doSignInWithGitHub();
+        const { error } = await doSignInWithGitHub();
 
         if (error) {
             setIsSigningIn('Error with GitHub sign-in. Please try again.')

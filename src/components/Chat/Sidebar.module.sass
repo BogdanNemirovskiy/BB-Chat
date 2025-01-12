@@ -199,6 +199,8 @@ p
     width: 10rem
 
 @media (max-width: 600px)
+    .sidebar
+        position: fixed
 
     .currentUser_profile__image
         position: absolute
@@ -211,7 +213,6 @@ p
         bottom: 2px
 
     .mobile__search
-
         svg
             height: 1.75rem
             width: auto
@@ -230,19 +231,18 @@ p
             width: 90%
 
     .chat__list
-        height: 75%
-        max-height: 75%
+        height: calc(100vh - 30vh)
+        max-height: 70vh
 
 @media (max-width: 400px)
 
     .currentUser_profile__image
-        top: 6%
+        top: 10%
 
     .sidebar__header
         padding: 8% 0
 
     .mobile__search
-
         svg
             position: absolute
             margin-bottom: 2%
@@ -259,5 +259,5 @@ p
             width: 90%
 
     .chat__list
-        height: 70%
-        max-height: 70%
+        height: calc( 100vh - 37vh )
+        max-height: calc( 100vh - 35vh )
