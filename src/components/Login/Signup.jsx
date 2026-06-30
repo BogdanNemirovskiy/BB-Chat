@@ -15,6 +15,7 @@ export default function Signup() {
     const [errors, setErrors] = useState({});
     const [isRegistering, setIsRegistering] = useState(false);
     const [isSigningIn, setIsSigningIn] = useState(false);
+    const [signInError, setSignInError] = useState(null);
     const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
@@ -28,11 +29,9 @@ export default function Signup() {
             return;
         }
 
-        try {
-            await doCreateUserWithEmailAndPassword(formData.email, formData.password, formData.username);
-            console.log("Registration successful");
-            navigate('/');
-        } catch (error) {
+        const { error } = await doCreateUserWithEmailAndPassword(formData.email, formData.password, formData.username);
+
+        if (error) {
             console.error("Registration failed:", error.message);
 
             if (error.code === 'auth/email-already-in-use') {
@@ -51,9 +50,11 @@ export default function Signup() {
                     general: 'Registration failed. Please try again later.',
                 }));
             }
-        } finally {
-            setIsRegistering(false);
+        } else {
+            navigate('/');
         }
+
+        setIsRegistering(false);
     };
 
 
@@ -71,26 +72,30 @@ export default function Signup() {
 
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
+        setIsSigningIn(true);
+        setSignInError(null);
 
         const { error } = await doSignInWithGoogle();
 
         if (error) {
-            setIsSigningIn('Error with Google sign-in. Please try again.')
+            setSignInError('Error with Google sign-in. Please try again.');
         } else {
-            navigate('/')
+            navigate('/');
         }
         setIsSigningIn(false);
     }
 
     const onGitHubSignIn = async (e) => {
         e.preventDefault();
+        setIsSigningIn(true);
+        setSignInError(null);
 
         const { error } = await doSignInWithGitHub();
 
         if (error) {
-            setIsSigningIn('Error with GitHub sign-in. Please try again.')
+            setSignInError('Error with GitHub sign-in. Please try again.');
         } else {
-            navigate('/')
+            navigate('/');
         }
         setIsSigningIn(false);
     }
@@ -103,39 +108,50 @@ export default function Signup() {
             </div>
             <p className={classes.sign_up__text}>Sign up</p>
 
-            <Input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData?.username || ''}
-                onChange={handleChange}
-                error={errors?.username}
-            />
-            <Input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData?.email || ''}
-                onChange={handleChange}
-                error={errors?.email}
-            />
-            <Input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData?.password || ''}
-                onChange={handleChange}
-                error={errors?.password}
-            />
+            {signInError && <p className={classes.error_text}>{signInError}</p>}
+            {errors?.general && <p className={classes.error_text}>{errors.general}</p>}
 
-            <button onClick={handleSignUp} className={classes.sign_up__btn}>Sign up</button>
+            <form onSubmit={handleSignUp}>
+                <Input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    value={formData?.username || ''}
+                    onChange={handleChange}
+                    error={errors?.username}
+                />
+                <Input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={formData?.email || ''}
+                    onChange={handleChange}
+                    error={errors?.email}
+                />
+                <Input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={formData?.password || ''}
+                    onChange={handleChange}
+                    error={errors?.password}
+                />
+
+                <button type="submit" className={classes.sign_up__btn} disabled={isRegistering}>
+                    {isRegistering ? 'Signing up...' : 'Sign up'}
+                </button>
+            </form>
             <div>
                 <div className={classes.sign_up__with}>
                     <span></span> <p>Sign up with</p> <span></span>
                 </div>
                 <div className={classes.sign_up__withIcons}>
-                    <Icon icon="flat-color-icons:google" onClick={onGoogleSignIn} />
-                    <Icon icon="simple-icons:github" style={{ color: 'black' }} onClick={onGitHubSignIn} />
+                    <button type="button" aria-label="Sign up with Google" onClick={onGoogleSignIn} disabled={isSigningIn}>
+                        <Icon icon="flat-color-icons:google" />
+                    </button>
+                    <button type="button" aria-label="Sign up with GitHub" onClick={onGitHubSignIn} disabled={isSigningIn}>
+                        <Icon icon="simple-icons:github" style={{ color: 'black' }} />
+                    </button>
                 </div>
             </div>
 

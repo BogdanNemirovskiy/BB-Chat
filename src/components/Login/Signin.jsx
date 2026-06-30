@@ -5,19 +5,15 @@ import logo from '../../images/logo.png';
 import { validateField, validateAllFields } from './functions';
 import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contex/authContex';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link } from 'react-router-dom';
-import { db } from '../../config/firebaseConfig';
-import { setDoc, getDoc, doc } from 'firebase/firestore';
 
 
-export default function Signin({ onToggleForm }) {
+export default function Signin() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [signInError, setSignInError] = useState(null);
-    const { setUserLoggedIn } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -71,31 +67,32 @@ export default function Signin({ onToggleForm }) {
 
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
+        setIsSigningIn(true);
+        setSignInError(null);
+
         const { user, error } = await doSignInWithGoogle();
 
-        const userData = {
-
-        }
-
         if (error) {
-            setIsSigningIn('Error with Google sign-in. Please try again.')
+            setSignInError('Error with Google sign-in. Please try again.');
         } else {
             console.log('user', user);
-            navigate('/')
+            navigate('/');
         }
         setIsSigningIn(false);
     }
 
     const onGitHubSignIn = async (e) => {
         e.preventDefault();
+        setIsSigningIn(true);
+        setSignInError(null);
 
         const { user, error } = await doSignInWithGitHub();
 
         if (error) {
-            setIsSigningIn('Error with GitHub sign-in. Please try again.')
+            setSignInError('Error with GitHub sign-in. Please try again.');
         } else {
             console.log(user);
-            navigate('/')
+            navigate('/');
         }
         setIsSigningIn(false);
     }
@@ -112,33 +109,39 @@ export default function Signin({ onToggleForm }) {
 
                 {signInError && <p className={classes.error_text}>{signInError}</p>}
 
-                <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={errors.email}
-                />
-                <Input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    error={errors.password}
-                />
+                <form onSubmit={handleSignIn}>
+                    <Input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        error={errors.email}
+                    />
+                    <Input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        error={errors.password}
+                    />
 
-                <button onClick={handleSignIn} className={classes.sign_in__btn} disabled={isSigningIn}>
-                    {isSigningIn ? 'Signing in...' : 'Sign in'}
-                </button>
+                    <button type="submit" className={classes.sign_in__btn} disabled={isSigningIn}>
+                        {isSigningIn ? 'Signing in...' : 'Sign in'}
+                    </button>
+                </form>
                 <div>
                     <div className={classes.sign_up__with}>
                         <span></span> <p>Sign up with</p> <span></span>
                     </div>
                     <div className={classes.sign_up__withIcons}>
-                        <Icon icon="flat-color-icons:google" onClick={onGoogleSignIn} />
-                        <Icon icon="simple-icons:github" style={{ color: 'black' }} onClick={onGitHubSignIn} />
+                        <button type="button" aria-label="Sign in with Google" onClick={onGoogleSignIn} disabled={isSigningIn}>
+                            <Icon icon="flat-color-icons:google" />
+                        </button>
+                        <button type="button" aria-label="Sign in with GitHub" onClick={onGitHubSignIn} disabled={isSigningIn}>
+                            <Icon icon="simple-icons:github" style={{ color: 'black' }} />
+                        </button>
                     </div>
                 </div>
                 <Link className={classes.sign_in_link} to='/signup'>

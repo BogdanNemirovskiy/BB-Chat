@@ -1,14 +1,20 @@
 .input__container
-    position: relative
     display: flex
     justify-content: center
+    width: 100%
+
+// Wrapper is sized to the input itself, so the eye icon / error anchor to the
+// input's right edge at every viewport — no per-breakpoint nudging needed.
+// min() keeps the desktop look (~34rem) while never overflowing narrow screens.
+.input__wrapper
+    position: relative
+    display: flex
     align-items: center
-    width: 42.5rem
-    min-width: 15rem
+    width: min(34rem, 90vw)
 
     .eye__icon
         position: absolute
-        right: 5.2rem
+        right: 1.25rem
         height: 1.5rem
         width: 1.5rem
         color: #ADADAD
@@ -16,14 +22,13 @@
 
     .error
         position: absolute
-        right: 2rem
+        right: 1rem
         font-size: 1.5rem
         color: red
         cursor: default
 
         &.has-eye-icon
-
-            right: 2rem
+            right: 3rem
 
 .input
     font-size: 1.25rem
@@ -31,61 +36,13 @@
     border: 1px solid #191B1F
     margin: 1.063rem 0
     color: #F1C40F
-    padding: 1.15rem 1.25rem
+    padding: 1.15rem 3rem 1.15rem 1.25rem
     border-radius: 45px
-    width: 80%
+    width: 100%
     box-sizing: border-box
 
 @media (max-width: 600px)
-
-    .input__container
-        justify-content: center
-
-        .eye__icon
-            right: 11.5rem
-            height: 20px
-
-        .error
-            right: 9rem
-
-            svg
-                height: 20px
-
-            &.has-eye-icon
-                right: 9rem
-
-                svg
-                    height: 20px
-
-        .input
-            font-size: 1rem
-            width: 21rem
-            margin: .5rem 0
-            padding: 1rem 1.15rem 1rem 1.15rem
-
-@media (max-width: 400px)
-
-    .input__container
-        svg
-            right: 0rem
-        .eye__icon
-            right: 13rem
-            height: 20px
-
-        .error
-            right: 9.5rem
-
-            svg
-                height: 20px
-
-            &.has-eye-icon
-                right: 9.5rem
-
-                svg
-                    height: 20px
-
-        .input
-            font-size: 1rem
-            width: 18.5rem
-            margin: .5rem 0
-            padding: 1rem 1.15rem 1rem 1.15rem
+    .input
+        font-size: 1rem
+        margin: .5rem 0
+        padding: 1rem 2.75rem 1rem 1.15rem

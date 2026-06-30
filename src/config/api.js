@@ -3,6 +3,7 @@ export const API = {
         "domain": "https://localhost:3001"
     },
     "cloudinary": {
-        "clould_name": "dwszo0b7b"
+        "cloud_name": process.env.REACT_APP_CLOUDINARY_CLOUD_NAME,
+        "upload_preset": process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
     }
 };

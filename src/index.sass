@@ -1,9 +1,18 @@
+@use 'styles/tokens' as *
+
 body
     background-color: #242529
     overflow: hidden
     margin: 0
     padding: 0
     overflow-x: hidden
+    font-family: $font-sans
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
+
+// Let form controls inherit the app font instead of the UA default.
+button, input, textarea, select
+    font-family: inherit
 
 .message-page
     display: flex

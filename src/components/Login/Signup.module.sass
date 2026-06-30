@@ -32,7 +32,7 @@
 .sign_in__container
     display: flex
     flex-direction: column
-    width: 42.5rem
+    width: min(42.5rem, 90vw)
     min-width: 15rem
 
 .password__container
@@ -49,11 +49,12 @@
     right: 5.5rem
 
 .sign_up__btn
+    display: block
     background-color: #F1C40F
     padding: 1rem 5rem
     font-size: 1.25rem
     border-radius: 45px
-    margin-top: 2.5rem
+    margin: 2.5rem auto 0
     cursor: pointer
 
 .sign_up_text
@@ -82,6 +83,18 @@
     justify-content: center
     margin-top: 1rem
     padding-bottom: .7rem
+
+    button
+        background: none
+        border: none
+        padding: 0
+        cursor: pointer
+        display: inline-flex
+        align-items: center
+
+        &:disabled
+            opacity: 0.6
+            cursor: not-allowed
 
     svg
         height: auto
@@ -120,14 +133,14 @@
         h1
             font-size: 2.5rem
 
-    .sign_in__text
+    .sign_up__text
         font-size: 1.5rem
         margin-bottom: 1.5rem
 
-    .sign_in__btn
+    .sign_up__btn
         font-size: 1.15rem
         padding: .8rem 0
-        margin: 1rem
+        margin: 1rem auto
         width: 40%
 
     .sign_up__with

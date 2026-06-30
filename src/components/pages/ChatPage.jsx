@@ -5,7 +5,7 @@ import Sidebar from "../Chat/Sidebar";
 export default function ChatPage() {
     const [selectedChat, setSelectedChat] = useState(null);
     const [isMobileVersion, setIsMobileVersion] = useState(false);
-    const [lastMessage, setLastMessage] = useState(null);
+    const [, setLastMessage] = useState(null);
 
     useEffect(() => {
         const handleResize = () => {

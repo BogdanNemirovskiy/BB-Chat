@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { useAuth } from '../../contex/authContex';
+import { useAuth } from '../../context/authContext';
 import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import noProfileImage from '../../images/no-profile-picture.png';
 import classes from './Sidebar.module.sass';
+import Avatar from '../common/Avatar';
 import { getUserChats } from '../../config/functions';
 import { doSignOut } from '../../config/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { Image } from 'cloudinary-react';
-import { API } from '../../config/api';
 
 
 const db = getFirestore();
@@ -19,7 +17,6 @@ export default function Sidebar({ handleSelectChat }) {
     const [foundUser, setFoundUser] = useState([]);
     const [error, setError] = useState('');
     const [chats, setChats] = useState([]);
-    const [cloudName] = useState(API.cloudinary.clould_name);
     const [userData, setUserData] = useState(null);
 
     const [isMobileVersion, setIsMobileVersion] = useState(false);
@@ -42,7 +39,7 @@ export default function Sidebar({ handleSelectChat }) {
                         const otherUserData = otherUserSnap.data();
 
                         const chatRef = doc(db, 'chats', chat.id);
-                        const unsubscribe = onSnapshot(chatRef, (doc) => {
+                        onSnapshot(chatRef, (doc) => {
                             const updatedChat = doc.data();
                             setChats((prevChats) => {
                                 return prevChats.map((prevChat) => {
@@ -59,7 +56,7 @@ export default function Sidebar({ handleSelectChat }) {
                             user: {
                                 id: otherUserId,
                                 userName: otherUserData.userName,
-                                photoURL: otherUserData.photoUrl || noProfileImage,
+                                photoURL: otherUserData.photoURL || null,
                             },
                         };
                     } else {
@@ -165,7 +162,6 @@ export default function Sidebar({ handleSelectChat }) {
                         id: chatId,
                         name: user.userName,
                         user: user,
-                        photoUrl: user.photoURL,
                     },
                 ]);
             }
@@ -191,25 +187,12 @@ export default function Sidebar({ handleSelectChat }) {
                 <div className={classes.sidebar__header}>
                     <Link to="edit-profile">
                         <div className={classes.currentUser_profile__image}>
-                            {cloudName && userData?.photoURL ? (
-                                <div className={classes.user__img}>
-                                    <Image
-                                        cloudName={cloudName}
-                                        publicId={userData.photoURL}
-                                        alt="Profile Image"
-                                        crop="thumb"
-                                        gravity="face"
-                                        width="100%"
-                                        height="100%"
-                                    />
-                                </div>
-                            ) : (
-                                <img
-                                    className={classes.no_profile__image}
-                                    src={noProfileImage}
-                                    alt="Default Profile"
+                            <div className={classes.user__img}>
+                                <Avatar
+                                    name={userData?.userName || currentUser?.displayName}
+                                    photoURL={userData?.photoURL}
                                 />
-                            )}
+                            </div>
                         </div>
                     </Link>
                     {!isMobileInputActive ? (
@@ -236,25 +219,12 @@ export default function Sidebar({ handleSelectChat }) {
                 <Link to="edit-profile">
                     <div className={classes.account__detail}>
                         <div className={classes.currentUser_profile__image}>
-                            {cloudName && userData?.photoURL ? (
-                                <div className={classes.user__img}>
-                                    <Image
-                                        cloudName={cloudName}
-                                        publicId={userData.photoURL}
-                                        alt="Profile Image"
-                                        crop="thumb"
-                                        gravity="face"
-                                        width="100%"
-                                        height="100%"
-                                    />
-                                </div>
-                            ) : (
-                                <img
-                                    className={classes.no_profile__image}
-                                    src={noProfileImage}
-                                    alt="Default Profile"
+                            <div className={classes.user__img}>
+                                <Avatar
+                                    name={userData?.userName || currentUser?.displayName}
+                                    photoURL={userData?.photoURL}
                                 />
-                            )}
+                            </div>
                         </div>
                         <div className={classes.account__info}>
                             <p className={classes.username}>{currentUser.displayName}</p>
@@ -289,21 +259,7 @@ export default function Sidebar({ handleSelectChat }) {
                     onClick={() => handleOpenChat(foundUser)}
                 >
                     <div className={classes.foundUser__image}>
-                        {foundUser.photoUrl ? (
-                            <Image
-                                cloudName={cloudName}
-                                publicId={foundUser.photoUrl}
-                                crop="thumb"
-                                gravity="face"
-                                width="100%"
-                                height="100%"
-                                alt={`${foundUser.userName}'s Profile`}
-                            />
-                        ) : (
-                            <div className={classes.founder__no_profile_img}>
-                                <img src={noProfileImage} alt="Default Profile" />
-                            </div>
-                        )}
+                        <Avatar name={foundUser.userName} photoURL={foundUser.photoURL} />
                     </div>
                     <p>{foundUser.userName}</p>
                 </div>
@@ -323,26 +279,12 @@ export default function Sidebar({ handleSelectChat }) {
                             }
                         >
                             <div className={classes.profile_image}>
-                                {chat.user.photoURL !== noProfileImage ? (
-                                    <div className={classes.profile_img}>
-                                        <Image
-                                            cloudName={cloudName}
-                                            publicId={chat.user?.photoURL}
-                                            alt={`${chat.user?.userName}'s Profile`}
-                                            crop="thumb"
-                                            gravity="face"
-                                            width="100%"
-                                            height="100%"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className={classes.no_profile_img}>
-                                        <img
-                                            src={noProfileImage}
-                                            alt="Default Profile"
-                                        />
-                                    </div>
-                                )}
+                                <div className={classes.profile_img}>
+                                    <Avatar
+                                        name={chat.user?.userName}
+                                        photoURL={chat.user?.photoURL}
+                                    />
+                                </div>
                             </div>
                             <div className={classes.user_info}>
                                 <p className={classes.user_info__title}>

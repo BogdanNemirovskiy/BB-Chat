@@ -1,12 +1,12 @@
 import UserInfo from './UserInfo';
-import noProfileImage from '../../images/no-profile-picture.png';
+import Avatar from '../common/Avatar';
 import classes from './EditProfile.module.sass';
-import { useAuth } from '../../contex/authContex';
+import { useAuth } from '../../context/authContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Image } from 'cloudinary-react';
+import { updateProfile } from 'firebase/auth';
 import { API } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -17,8 +17,9 @@ export default function EditProfile() {
     const [localData, setLocalData] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [imageError, setImageError] = useState('');
     const fileInputRef = useRef(null);
-    const [cloudName] = useState(API.cloudinary.clould_name);
+    const [cloudName] = useState(API.cloudinary.cloud_name);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,9 +55,23 @@ export default function EditProfile() {
             setLoading(true);
             const userDoc = doc(db, 'users', currentUser.uid);
 
-            await updateDoc(userDoc, localData);
+            // Persist only the editable fields so we never clobber
+            // server-managed data (createdAt, email, photoURL, ...).
+            const editableFields = ['userName', 'address', 'userTag', 'DOB'];
+            const updates = {};
+            editableFields.forEach((field) => {
+                if (localData[field] !== undefined) updates[field] = localData[field];
+            });
 
-            setUserData(localData);
+            await updateDoc(userDoc, updates);
+
+            // Keep Firebase Auth displayName in sync so renames show
+            // immediately in the header (Sidebar reads displayName).
+            if (updates.userName && updates.userName !== currentUser.displayName) {
+                await updateProfile(currentUser, { displayName: updates.userName });
+            }
+
+            setUserData((prevData) => ({ ...prevData, ...updates }));
             setError('');
             navigate('/');
         } catch (err) {
@@ -73,6 +88,8 @@ export default function EditProfile() {
         fileInputRef.current.click();
     };
 
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
+
     const handleImageChange = async (event) => {
         const selectedFile = event.target.files[0];
         if (!selectedFile) {
@@ -80,12 +97,29 @@ export default function EditProfile() {
             return;
         }
 
+        // Validate client-side: images only, max 5MB. The upload preset is
+        // unsigned, so this is the first line of defense against junk uploads.
+        if (!selectedFile.type.startsWith('image/')) {
+            setImageError('Please choose an image file.');
+            event.target.value = '';
+            return;
+        }
+        if (selectedFile.size > MAX_IMAGE_BYTES) {
+            setImageError('Image is too large. Please choose a file under 5MB.');
+            event.target.value = '';
+            return;
+        }
+        setImageError('');
+
         const formData = new FormData();
         formData.append('file', selectedFile);
-        formData.append('upload_preset', 'bbchat');
+        formData.append('upload_preset', API.cloudinary.upload_preset);
 
         try {
-            const response = await axios.post('https://api.cloudinary.com/v1_1/dwszo0b7b/image/upload', formData);
+            const response = await axios.post(
+                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                formData
+            );
             console.log('Upload success:', response.data);
 
             const publicId = response.data.public_id;
@@ -99,9 +133,15 @@ export default function EditProfile() {
                 photoURL: uploadedImageUrl,
                 photoPublicId: publicId,
             }));
+            setLocalData((prevData) => ({
+                ...prevData,
+                photoURL: uploadedImageUrl,
+                photoPublicId: publicId,
+            }));
             currentUser.photoURL = uploadedImageUrl;
         } catch (error) {
             console.error('Error uploading to Cloudinary:', error);
+            setImageError('Failed to upload image. Please try again.');
         }
     };
 
@@ -127,24 +167,15 @@ export default function EditProfile() {
             </div>
             <div className={classes.edit__profile}>
                 <div
-                    className={cloudName && userData?.photoURL ? classes.profile__image : classes.no_profile__image}
+                    className={classes.profile__image}
                     onClick={handleImageClick}
                 >
-                    {cloudName && userData?.photoURL ? (
-                        <div className={classes.user__photo}>
-                            <Image
-                                cloudName={cloudName}
-                                publicId={userData.photoURL}
-                                alt="Profile Image"
-                                crop="thumb"
-                                gravity="face"
-                                width="100%"
-                                height="100%"
-                            />
-                        </div>
-                    ) : (
-                        <img src={noProfileImage} alt="Default Profile" />
-                    )}
+                    <div className={classes.user__photo}>
+                        <Avatar
+                            name={localData?.userName || currentUser?.displayName}
+                            photoURL={userData?.photoURL}
+                        />
+                    </div>
 
                     <input
                         type="file"
@@ -154,6 +185,7 @@ export default function EditProfile() {
                         onChange={handleImageChange}
                     />
                 </div>
+                {imageError && <p className={classes.image_error}>{imageError}</p>}
                 <p className={classes.nickname}>@{localData?.userTag || 'No Nickname'}</p>
                 <div className={classes.user__info}>
                     <UserInfo

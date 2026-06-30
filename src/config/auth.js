@@ -1,15 +1,12 @@
 import {
-    OAuthProvider,
     GithubAuthProvider,
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
-    sendEmailVerification,
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
     signInWithPopup,
     updatePassword,
-    updateProfile,
-    getAuth
+    updateProfile
 } from "firebase/auth";
 import { auth, db } from "./firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -17,7 +14,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 
 export const doCreateUserWithEmailAndPassword = async (email, password, userName) => {
     if (!userName) {
-        throw new Error("Username is required.");
+        return { user: null, error: { code: 'app/username-required', message: 'Username is required.' } };
     }
 
     try {
@@ -28,19 +25,16 @@ export const doCreateUserWithEmailAndPassword = async (email, password, userName
             displayName: userName
         });
 
-        console.log("Attempting to write to Firestore...");
-
         await setDoc(doc(db, 'users', user.uid), {
             userName: userName,
             email: email,
             createdAt: new Date()
         });
 
-        console.log("User created and additional data saved in Firestore!");
-        return user;
+        return { user, error: null };
     } catch (error) {
         console.error("Error creating user:", error);
-        throw error;
+        return { user: null, error };
     }
 };
 
@@ -124,12 +118,6 @@ export const doPasswordReset = async (email) => {
     return sendPasswordResetEmail(auth, email);
 };
 
-export const doPasswrodChange = async (password) => {
+export const doPasswordChange = async (password) => {
     return updatePassword(auth.currentUser, password)
-};
-
-export const doSendEmailVerification = () => {
-    return sendEmailVerification(auth.currentUser, {
-        url: `${window.location.origin}/home`
-    });
 };

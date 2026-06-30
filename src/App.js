@@ -1,18 +1,17 @@
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { createHashRouter, RouterProvider, Navigate } from "react-router-dom";
 import Signin from "./components/Login/Signin";
 import Signup from "./components/Login/Signup";
 import ChatPage from "./components/pages/ChatPage";
 import EditProfilePage from "./components/pages/EditProfilePage";
-import { AuthProvider, useAuth } from "./contex/authContex/index";
+import { AuthProvider, useAuth } from "./context/authContext/index";
 import ErrorPage from "./components/pages/ErrorPage";
-import { Helmet } from "react-helmet";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
   return currentUser ? children : <Navigate to="/signin" />;
 }
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     index: true,
     element: (

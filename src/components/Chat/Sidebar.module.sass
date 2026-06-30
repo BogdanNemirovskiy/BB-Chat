@@ -1,12 +1,11 @@
+@use '../../styles/tokens' as *
+
 $username-color: #fff
 $user-text-color: rgba(255, 255, 255, 0.6)
 $center-margin: 1.5rem
 
 a
     text-decoration: none
-
-p
-    font-family: Roboto
 
 .sidebar
     display: flex
@@ -18,6 +17,7 @@ p
     border: 2px solid #353638
     border-radius: 10px
     margin: 1.75rem 1rem
+    box-shadow: $shadow-soft
 
     .account__detail
         margin-top: .5rem
@@ -83,7 +83,14 @@ p
     display: flex
     align-items: center
     margin-top: 1rem
+    padding: 0.35rem 0.5rem
+    border-radius: $radius-md
     cursor: pointer
+    transition: background-color $transition-base, transform $transition-base
+
+    &:hover
+        background-color: $surface-2
+        transform: scale(1.015)
 
 .found__user
     display: flex
@@ -105,9 +112,17 @@ p
 
 .selected_user__item
     display: flex
+    align-items: center
     margin-top: 1rem
+    padding: 0.35rem 0.5rem
     border-left: 6px solid #FFD700
+    border-radius: 0 $radius-md $radius-md 0
+    background-color: $surface-1
     cursor: pointer
+    transition: background-color $transition-base, transform $transition-base
+
+    &:hover
+        background-color: $surface-2
 
 .user_info
 

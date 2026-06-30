@@ -53,7 +53,11 @@ export default function UserInfo({ info, userInfo, onSave }) {
                     </li>
                 </div>
             ) : (
-                <li className={classes.li__info}>{editedValue || `No ${info}`}</li>
+                <li
+                    className={`${classes.li__info} ${editedValue ? '' : classes.placeholder}`}
+                >
+                    {editedValue || `Add ${info.toLowerCase()}`}
+                </li>
             )}
 
             {!isEditing && (

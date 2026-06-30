@@ -13,7 +13,7 @@ export const validateField = (name, value) => {
             error = <Icon icon='icon-park-solid:error' style={{ color: "#ff0000" }} />;
         }
     } else if (name === 'password') {
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
         if (!passwordRegex.test(value)) {
             error = <Icon icon='icon-park-solid:error' style={{ color: "#ff0000" }} />;
         }

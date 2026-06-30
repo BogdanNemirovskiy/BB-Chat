@@ -1,0 +1,26 @@
+@use '../../styles/tokens' as *
+
+.avatar
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 100%
+    height: 100%
+    border-radius: 50%
+    overflow: hidden
+    flex-shrink: 0
+    color: $text-primary
+    font-weight: 600
+    user-select: none
+    // Establish a query container so the initial can scale to the circle.
+    container-type: size
+
+    img
+        width: 100%
+        height: 100%
+        object-fit: cover
+        display: block
+
+.initial
+    font-size: 45cqmin
+    line-height: 1
