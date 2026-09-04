@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -16,7 +16,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-getAnalytics(app);
 const db = getFirestore(app);
+
+// BS: analytics is blocked by most ad blockers/browsers with tracking protection;
+// isSupported() + try/catch keeps that from ever surfacing as an app error.
+isSupported()
+  .then((supported) => {
+    if (supported) getAnalytics(app);
+  })
+  .catch(() => {});
 
 export { app, auth, db };
