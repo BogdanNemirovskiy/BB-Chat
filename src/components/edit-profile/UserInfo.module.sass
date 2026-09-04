@@ -1,4 +1,9 @@
 @use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include rise-in-keyframes
+@include fade-in-keyframes
+@include pop-in-keyframes
 
 .list__info
     display: flex
@@ -26,8 +31,14 @@ svg
     color: $text-muted
     font-style: italic
 
+.value__info
+    animation: fade-in $duration-entrance ease
+
+// BS: The row keeps .list__info's fixed height through the swap, so the display
+// value and the edit field can trade places without the list jumping.
 .edit__container
     display: flex
+    animation: rise-in $duration-entrance $ease-out-soft
 
 .edit__input
     font-family: Georgia, 'Times New Roman', Times, serif
@@ -47,6 +58,7 @@ svg
     svg
         font-size: 1.5rem
         padding: 0 .25rem
+        animation: pop-in $duration-entrance $ease-out-soft
 
 @media (max-width: 768px)
     .list__info

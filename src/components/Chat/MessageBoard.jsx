@@ -16,11 +16,16 @@ import EmojiPicker from "emoji-picker-react";
 import classes from "./MessageBoard.module.sass";
 import ProfileImg from "../../images/no-profile-picture.png";
 import Avatar from "../common/Avatar";
+import { useDelayedUnmount } from "../../hooks/useDelayedUnmount";
+
+// Must match $duration-exit in styles/_tokens.sass.
+const EMOJI_EXIT_MS = 170;
 
 export default function MessageBoard({
   selectedChat,
-  setSelectedChat,
+  onBack,
   setLastMessage,
+  enterFrom,
 }) {
   const { currentUser } = useAuth();
   const [isChatSelected, setIsChatSelected] = useState(false);
@@ -30,12 +35,21 @@ export default function MessageBoard({
   const emojiPickerRef = useRef(null);
   const emojiIconRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const animatedIds = useRef(new Map());
+  const isInitialLoad = useRef(true);
+
+  const emojiPanel = useDelayedUnmount(showEmojiPicker, EMOJI_EXIT_MS);
 
   const [isMobileVersion, setIsMobileVersion] = useState(false);
 
   useEffect(() => {
     if (selectedChat) {
       setIsChatSelected(true);
+
+      // BS: Everything in a newly opened chat counts as history. Without this
+      // reset the whole backlog would animate in at once on every chat switch.
+      animatedIds.current = new Map();
+      isInitialLoad.current = true;
 
       const messagesRef = collection(
         db,
@@ -46,10 +60,24 @@ export default function MessageBoard({
       const q = query(messagesRef, orderBy("createdAt"));
 
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const msgs = snapshot.docs.map((doc) => {
+          // BS: The verdict is cached per id rather than recomputed, because
+          // serverTimestamp() makes every sent message arrive twice — once with
+          // a null timestamp, then again once the server resolves it. A
+          // recomputed flag would strip the class mid-animation and snap the
+          // bubble into place.
+          if (!animatedIds.current.has(doc.id)) {
+            animatedIds.current.set(doc.id, !isInitialLoad.current);
+          }
+
+          return {
+            ...doc.data(),
+            id: doc.id,
+            isNew: animatedIds.current.get(doc.id),
+          };
+        });
+
+        isInitialLoad.current = false;
         setMessages(msgs);
         setTimeout(scrollToBottom, 0);
       });
@@ -160,8 +188,15 @@ export default function MessageBoard({
     setShowEmojiPicker((prevState) => !prevState); // Toggle visibility of emoji picker
   };
 
+  const boardClass = [
+    classes.message__board,
+    enterFrom === "right" ? classes.enter_from__right : "",
+  ]
+    .join(" ")
+    .trim();
+
   return (
-    <div className={classes.message__board}>
+    <div className={boardClass}>
       {isChatSelected && selectedChat?.selectedUser && (
         <div className={classes.chat__header}>
           {isMobileVersion ? (
@@ -193,10 +228,7 @@ export default function MessageBoard({
           )}
           <div className={classes.header__icons}>
             {isMobileVersion ? (
-              <Icon
-                onClick={() => setSelectedChat(null)}
-                icon="stash:angle-left"
-              />
+              <Icon onClick={onBack} icon="stash:angle-left" />
             ) : (
               <Icon
                 icon="mingcute:more-2-fill"
@@ -219,32 +251,48 @@ export default function MessageBoard({
         ) : (
           <div className={classes.selected__chat} key={currentUser.uid}>
             <div className={classes.messages}>
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={
-                    msg.senderId === currentUser.uid
-                      ? classes.user__sent
-                      : classes.user__received
-                  }
-                >
-                  <p className={classes.message__text}>{msg.text}</p>
-                  <span className={classes.message__time}>
-                    {msg.createdAt?.seconds
-                      ? new Date(
-                          msg.createdAt.seconds * 1000
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "Sending..."}
-                  </span>
-                </div>
-              ))}
+              {messages.map((msg) => {
+                const isOwn = msg.senderId === currentUser.uid;
+                const enterClass = isOwn
+                  ? classes.bubble_enter__sent
+                  : classes.bubble_enter__received;
+
+                return (
+                  <div
+                    key={msg.id}
+                    className={[
+                      isOwn ? classes.user__sent : classes.user__received,
+                      msg.isNew ? enterClass : "",
+                    ]
+                      .join(" ")
+                      .trim()}
+                  >
+                    <p className={classes.message__text}>{msg.text}</p>
+                    <span className={classes.message__time}>
+                      {msg.createdAt?.seconds
+                        ? new Date(
+                            msg.createdAt.seconds * 1000
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "Sending..."}
+                    </span>
+                  </div>
+                );
+              })}
               <div ref={messagesEndRef}></div>
             </div>
-            {showEmojiPicker && (
-              <div className={classes.emoji__panel} ref={emojiPickerRef}>
+            {emojiPanel.mounted && (
+              <div
+                className={[
+                  classes.emoji__panel,
+                  emojiPanel.closing ? classes.emoji__panel_closing : "",
+                ]
+                  .join(" ")
+                  .trim()}
+                ref={emojiPickerRef}
+              >
                 <EmojiPicker
                   onEmojiClick={handleEmojiClick}
                   disableAutoFocus={true}

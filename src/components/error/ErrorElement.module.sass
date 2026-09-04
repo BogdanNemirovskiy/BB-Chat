@@ -1,3 +1,7 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include float-keyframes
 
 .error__container
     display: flex
@@ -34,6 +38,11 @@
             color: #f1c40f
             background-color: #302f2f
             border: 1px solid #4A4A4A
+
+// BS: Slow idle float. The page is otherwise completely static, so a little
+// life here stops the 404 reading as a broken render.
+.disappointed__icon
+    animation: float 2.6s ease-in-out infinite
 
 .error__code
     color: #F1C40F

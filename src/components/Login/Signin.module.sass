@@ -1,8 +1,20 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include rise-in-keyframes
+@include nudge-keyframes
 
 .login__menu
     display: flex
     align-items: center
     flex-direction: column
+
+// BS: The page builds itself top-down on arrival — logo, heading, demo CTA,
+// then the form. `both` fill-mode holds each element at opacity 0 through its
+// delay; without it they all flash in at full opacity before their turn.
+.login__menu form
+    animation: rise-in $duration-entrance $ease-out-soft both
+    animation-delay: 180ms
 
 .logo
     display: flex
@@ -11,6 +23,7 @@
     margin-right: 15rem
     margin-top: 2rem
     width: 100%
+    animation: rise-in $duration-entrance $ease-out-soft both
 
     h1
         color: #F1C40F
@@ -28,6 +41,54 @@
     font-size: 2rem
     font-weight: 600
     margin: 0 0 2rem 0
+    animation: rise-in $duration-entrance $ease-out-soft both
+    animation-delay: 60ms
+
+.demo__container
+    display: flex
+    align-items: center
+    flex-direction: column
+    margin-bottom: 1.5rem
+    animation: rise-in $duration-entrance $ease-out-soft both
+    animation-delay: 120ms
+
+.demo__btn
+    display: inline-flex
+    align-items: center
+    gap: 0.5rem
+    padding: 0.55rem 1.4rem
+    font-size: 0.95rem
+    font-weight: 600
+    color: #F1C40F
+    background-color: rgba(241, 196, 15, 0.08)
+    border: 1px solid rgba(241, 196, 15, 0.45)
+    border-radius: 45px
+    cursor: pointer
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease
+
+    svg
+        font-size: 1.05rem
+
+    &:hover
+        color: #1c1d21
+        background-color: #F1C40F
+        border-color: #F1C40F
+
+    &:disabled
+        opacity: 0.6
+        cursor: not-allowed
+
+.demo__caption
+    color: #7d7d7d
+    font-size: 0.8rem
+    margin: 0.6rem 0 0
+
+.error_text
+    color: #ff6b6b
+    font-size: 0.95rem
+    margin: 0 0 1rem 0
+    text-align: center
+    animation: nudge $duration-entrance $ease-out-soft
 
 .sign_in__container
     display: flex
@@ -129,6 +190,16 @@
     .sign_in__text
         font-size: 1.5rem
         margin-bottom: 1.5rem
+
+    .demo__container
+        margin-bottom: 1rem
+
+    .demo__btn
+        font-size: .9rem
+        padding: .5rem 1.2rem
+
+    .demo__caption
+        font-size: .75rem
 
     .sign_in__btn
         font-size: 1.15rem

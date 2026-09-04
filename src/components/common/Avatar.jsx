@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import classes from './Avatar.module.sass';
 
 // Small, lively palette for initial-based fallback avatars.
@@ -30,6 +31,10 @@ function colorFromString(str = '') {
  *   The initial scales to the circle via `cqmin`, so responsive wrappers work.
  */
 export default function Avatar({ name, photoURL, size, className = '' }) {
+    // BS: Tracks which src finished loading rather than a boolean, so swapping
+    // photoURL re-arms the fade instead of showing the new image instantly.
+    const [loadedSrc, setLoadedSrc] = useState(null);
+
     const label = name ? `${name}'s avatar` : 'User avatar';
     const sizeStyle = size ? { width: size, height: size } : undefined;
     const rootClass = `${classes.avatar} ${className}`.trim();
@@ -37,7 +42,19 @@ export default function Avatar({ name, photoURL, size, className = '' }) {
     if (photoURL) {
         return (
             <div className={rootClass} style={sizeStyle}>
-                <img src={photoURL} alt={label} />
+                <img
+                    src={photoURL}
+                    alt={label}
+                    className={loadedSrc === photoURL ? classes.loaded : ''}
+                    // BS: A cached image can finish loading before React attaches
+                    // onLoad. Without the `complete` check the avatar would sit at
+                    // opacity 0 forever, so the ref is the safety net, not a nicety.
+                    ref={(node) => {
+                        if (node?.complete) setLoadedSrc(photoURL);
+                    }}
+                    onLoad={() => setLoadedSrc(photoURL)}
+                    onError={() => setLoadedSrc(photoURL)}
+                />
             </div>
         );
     }

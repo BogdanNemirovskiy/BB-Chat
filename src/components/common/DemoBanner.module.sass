@@ -1,0 +1,65 @@
+@use '../../styles/tokens' as *
+
+// BS: Fixed overlay rather than a block in the flow — .message-page is a flex
+// row whose children are sized in vh against a body with overflow hidden, so an
+// inline banner would push the chat past the viewport.
+.banner
+    position: fixed
+    bottom: 6.5rem
+    left: 50%
+    transform: translate(-50%, 0)
+    z-index: 100
+    display: flex
+    align-items: center
+    gap: $space-3
+    max-width: min(46rem, calc(100vw - #{$space-4} * 2))
+    padding: $space-2 $space-3
+    border: 1px solid rgba(255, 215, 0, 0.35)
+    border-radius: $radius-pill
+    background-color: rgba(38, 39, 43, 0.96)
+    box-shadow: $shadow-soft
+    transition: opacity 0.3s ease, transform 0.3s ease
+    animation: banner-in $duration-entrance $ease-out-soft
+
+    p
+        margin: 0
+        color: $text-primary
+        font-size: 0.9rem
+        line-height: 1.4
+
+    button
+        flex-shrink: 0
+        border: none
+        background: none
+        color: $accent
+        font-size: 1.4rem
+        line-height: 1
+        cursor: pointer
+        padding: 0 $space-1
+
+        &:hover
+            color: $accent-hover
+
+// BS: Declared locally rather than pulled from styles/motion because the
+// centring translate(-50%) has to travel with it — a generic rise-in would drop
+// the -50% and throw the banner half a width to the right.
+@keyframes banner-in
+    from
+        opacity: 0
+        transform: translate(-50%, 0.75rem)
+    to
+        opacity: 1
+        transform: translate(-50%, 0)
+
+.fading_out
+    opacity: 0
+    transform: translate(-50%, 0.5rem)
+    pointer-events: none
+
+@media (max-width: 600px)
+    .banner
+        bottom: 5.5rem
+        border-radius: $radius-md
+
+        p
+            font-size: 0.8rem

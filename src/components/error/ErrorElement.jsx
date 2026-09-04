@@ -13,6 +13,7 @@ export default function ErrorElement() {
                 width="100px" 
                 height="100px" 
                 aria-label="Disappointed face icon"
+                className={classes.disappointed__icon}
             />
             <h1 className={classes.error__code}>404</h1>
             <p className={classes.notFound__text}>Page not found</p>

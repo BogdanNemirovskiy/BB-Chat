@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const db = getFirestore();
 
-export default function Sidebar({ handleSelectChat }) {
+export default function Sidebar({ handleSelectChat, selectedChatId, enterFrom }) {
     const { currentUser } = useAuth();
     const [searchInput, setSearchInput] = useState('');
     const [foundUser, setFoundUser] = useState([]);
@@ -181,8 +181,13 @@ export default function Sidebar({ handleSelectChat }) {
         doSignOut();
     }
 
+    const sidebarClass = [
+        classes.sidebar,
+        enterFrom === 'left' ? classes.enter_from__left : '',
+    ].join(' ').trim();
+
     return (
-        <div className={classes.sidebar}>
+        <div className={sidebarClass}>
             {isMobileVersion ? (
                 <div className={classes.sidebar__header}>
                     <Link to="edit-profile">
@@ -196,7 +201,7 @@ export default function Sidebar({ handleSelectChat }) {
                         </div>
                     </Link>
                     {!isMobileInputActive ? (
-                        <p>BB Chat</p>
+                        <p className={classes.mobile__title}>BB Chat</p>
                     ) : (
                         <input
                             type="text"
@@ -270,7 +275,10 @@ export default function Sidebar({ handleSelectChat }) {
                     chats.map((chat) => (
                         <div
                             key={chat.id}
-                            className={classes.user__item}
+                            className={[
+                                classes.user__item,
+                                chat.id === selectedChatId ? classes.selected_user__item : '',
+                            ].join(' ').trim()}
                             onClick={() =>
                                 handleSelectChat({
                                     chatId: chat.id,

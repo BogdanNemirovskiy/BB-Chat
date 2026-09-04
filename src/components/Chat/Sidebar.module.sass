@@ -1,4 +1,11 @@
 @use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include drop-in-keyframes
+@include slide-in-left-keyframes
+@include slide-in-right-keyframes
+@include indicator-in-keyframes
+@include nudge-keyframes
 
 $username-color: #fff
 $user-text-color: rgba(255, 255, 255, 0.6)
@@ -6,6 +13,10 @@ $center-margin: 1.5rem
 
 a
     text-decoration: none
+
+// BS: Only applied when returning from a chat on mobile — see ChatPage.
+.enter_from__left
+    animation: slide-in-left $duration-entrance $ease-out-soft
 
 .sidebar
     display: flex
@@ -63,15 +74,16 @@ a
 
     svg
         height: auto
-        width: 24px
+        width: 20px
         position: absolute
-        margin-top: 1rem
+        margin-top: .65rem
         margin-left: .5rem
 
     input
-        font-size: 1.2rem
-        padding: 1rem 1rem 1rem 2rem
-        border-radius: 15px
+        font-size: 1.05rem
+        padding: .75rem .75rem .75rem 2rem
+        border-radius: 12px
+        width: 75%
 
 .chat__list
     height: 63vh
@@ -90,7 +102,7 @@ a
 
     &:hover
         background-color: $surface-2
-        transform: scale(1.015)
+        transform: translateX(3px)
 
 .found__user
     display: flex
@@ -100,6 +112,7 @@ a
     cursor: pointer
     border: 2px solid #FFD700
     border-radius: 10px
+    animation: drop-in $duration-entrance $ease-out-soft
 
     p
         font-size: 1.25rem
@@ -110,19 +123,24 @@ a
         width: 88px
         height: 100%
 
+// BS: Applied alongside .user__item, so it carries only the differences.
+// The bar is a ::before rather than a border-left because a border would widen
+// the box and shove the row's contents sideways the moment a chat is selected.
 .selected_user__item
-    display: flex
-    align-items: center
-    margin-top: 1rem
-    padding: 0.35rem 0.5rem
-    border-left: 6px solid #FFD700
-    border-radius: 0 $radius-md $radius-md 0
+    position: relative
     background-color: $surface-1
-    cursor: pointer
-    transition: background-color $transition-base, transform $transition-base
+    border-radius: 0 $radius-md $radius-md 0
 
-    &:hover
-        background-color: $surface-2
+    &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 0
+        bottom: 0
+        width: 6px
+        border-radius: 0 3px 3px 0
+        background-color: $accent
+        animation: indicator-in $duration-entrance $ease-out-soft
 
 .user_info
 
@@ -188,6 +206,14 @@ a
 .no_profile__image
     width: 64px
 
+// BS: .error was referenced by Sidebar.jsx but never defined, so the search
+// failure message rendered unstyled. Needed before it can be animated.
+.error
+    color: #ff6b6b
+    font-size: 0.9rem
+    margin: 0.75rem 0 0 1.6rem
+    animation: nudge $duration-entrance $ease-out-soft
+
 // Mobile styles
 
 .sidebar__header
@@ -206,12 +232,18 @@ a
 
 // Mobile styles
 
+// BS: The title and the search field replace each other in the same slot, so
+// each slides in from the side it conceptually comes from rather than popping.
+.mobile__title
+    animation: slide-in-left $duration-entrance $ease-out-soft
+
 .mobile__input
     background-color: #FFD700
     border: 1px solid #FFD700
     border-bottom: 1px solid #534700
     font-size: 1.25rem
     width: 10rem
+    animation: slide-in-right $duration-entrance $ease-out-soft
 
 @media (max-width: 600px)
     .sidebar

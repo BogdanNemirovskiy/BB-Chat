@@ -1,0 +1,121 @@
+// Shared motion keyframes for the BB Chat UI.
+// Consume with:  @use '../../styles/motion' as *
+// (adjust the relative depth to the importing module).
+//
+// BS: These are mixins rather than plain @keyframes because CSS Modules
+// localizes `animation-name`. A keyframe declared in one module and referenced
+// from another resolves to a hashed name that does not exist, and the animation
+// silently never runs — so every module must emit the keyframes it uses.
+
+// Entrances ──────────────────────────────────────────────────
+@mixin rise-in-keyframes
+    @keyframes rise-in
+        from
+            opacity: 0
+            transform: translateY(10px)
+        to
+            opacity: 1
+            transform: translateY(0)
+
+@mixin drop-in-keyframes
+    @keyframes drop-in
+        from
+            opacity: 0
+            transform: translateY(-6px)
+        to
+            opacity: 1
+            transform: translateY(0)
+
+@mixin fade-in-keyframes
+    @keyframes fade-in
+        from
+            opacity: 0
+        to
+            opacity: 1
+
+@mixin pop-in-keyframes
+    @keyframes pop-in
+        from
+            opacity: 0
+            transform: scale(0.8)
+        to
+            opacity: 1
+            transform: scale(1)
+
+@mixin slide-in-right-keyframes
+    @keyframes slide-in-right
+        from
+            opacity: 0
+            transform: translateX(24px)
+        to
+            opacity: 1
+            transform: translateX(0)
+
+@mixin slide-in-left-keyframes
+    @keyframes slide-in-left
+        from
+            opacity: 0
+            transform: translateX(-24px)
+        to
+            opacity: 1
+            transform: translateX(0)
+
+// Chat bubbles ───────────────────────────────────────────────
+// Arrive from the side they belong to, with a slight scale-up.
+@mixin bubble-in-keyframes
+    @keyframes bubble-in-sent
+        from
+            opacity: 0
+            transform: translate(12px, 6px) scale(0.96)
+        to
+            opacity: 1
+            transform: translate(0, 0) scale(1)
+
+    @keyframes bubble-in-received
+        from
+            opacity: 0
+            transform: translate(-12px, 6px) scale(0.96)
+        to
+            opacity: 1
+            transform: translate(0, 0) scale(1)
+
+// Popovers ───────────────────────────────────────────────────
+// Pair with `transform-origin` on the trigger's side so the panel grows out of
+// its button instead of materializing in space.
+@mixin panel-in-keyframes
+    @keyframes panel-in
+        from
+            opacity: 0
+            transform: translateY(8px) scale(0.95)
+        to
+            opacity: 1
+            transform: translateY(0) scale(1)
+
+// Accents ────────────────────────────────────────────────────
+// One damped oscillation — reads as "look here", not as an alarm.
+@mixin nudge-keyframes
+    @keyframes nudge
+        0%
+            opacity: 0
+            transform: translateX(-4px)
+        50%
+            transform: translateX(3px)
+        100%
+            opacity: 1
+            transform: translateX(0)
+
+@mixin float-keyframes
+    @keyframes float
+        0%, 100%
+            transform: translateY(0)
+        50%
+            transform: translateY(-6px)
+
+@mixin indicator-in-keyframes
+    @keyframes indicator-in
+        from
+            opacity: 0
+            transform: scaleY(0)
+        to
+            opacity: 1
+            transform: scaleY(1)

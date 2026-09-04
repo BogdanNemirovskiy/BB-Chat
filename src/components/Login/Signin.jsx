@@ -9,6 +9,9 @@ import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link } from 'react-router-dom';
 
 
+const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL;
+const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD;
+
 export default function Signin() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -65,6 +68,21 @@ export default function Signin() {
 
 
 
+    const handleDemoSignIn = async (e) => {
+        e.preventDefault();
+        setIsSigningIn(true);
+        setSignInError(null);
+
+        const { error } = await doSignInWithEmailAndPassword(DEMO_EMAIL, DEMO_PASSWORD);
+
+        if (error) {
+            setSignInError('The demo is unavailable right now. Please try again later.');
+        } else {
+            navigate('/');
+        }
+        setIsSigningIn(false);
+    }
+
     const onGoogleSignIn = async (e) => {
         e.preventDefault();
         setIsSigningIn(true);
@@ -106,6 +124,21 @@ export default function Signin() {
                 </div>
 
                 <p className={classes.sign_in__text}>Sign in</p>
+
+                {DEMO_EMAIL && (
+                    <div className={classes.demo__container}>
+                        <button
+                            type="button"
+                            className={classes.demo__btn}
+                            onClick={handleDemoSignIn}
+                            disabled={isSigningIn}
+                        >
+                            <Icon icon="ph:play-circle-fill" />
+                            {isSigningIn ? 'Loading...' : 'Try the demo'}
+                        </button>
+                        <p className={classes.demo__caption}>No account needed — look around instantly</p>
+                    </div>
+                )}
 
                 {signInError && <p className={classes.error_text}>{signInError}</p>}
 

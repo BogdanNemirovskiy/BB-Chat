@@ -1,4 +1,21 @@
 @use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include bubble-in-keyframes
+@include panel-in-keyframes
+@include fade-in-keyframes
+@include slide-in-right-keyframes
+
+// BS: A transform on .message__board would make it the containing block for its
+// position:fixed descendants (the mobile back arrow and the input bar), so both
+// would jump mid-slide and snap back when the animation ended. Opacity creates
+// no containing block, so the root only fades and just the transform-safe
+// subtrees slide. Only set on mobile — see ChatPage.
+.enter_from__right
+    animation: fade-in $duration-entrance ease
+
+    .messages, .chat__input
+        animation: slide-in-right $duration-entrance $ease-out-soft
 
 .message__board
     display: flex
@@ -100,6 +117,10 @@
         background-color: #F1C40F
         padding: .5rem
         border-radius: 90px
+        transition: transform $duration-fast $ease-out-soft
+
+        &:active
+            transform: scale(0.88)
 
     .link
         width: 2rem
@@ -144,6 +165,17 @@
     border: 1px solid rgba(255, 255, 255, 0.06)
     border-bottom-left-radius: 6px
 
+// BS: Bubbles arrive from the side they belong to. Applied only to messages
+// that landed after the initial snapshot, so opening a chat doesn't cascade the
+// entire backlog in at once.
+.bubble_enter__sent
+    transform-origin: bottom right
+    animation: bubble-in-sent $duration-entrance $ease-out-soft
+
+.bubble_enter__received
+    transform-origin: bottom left
+    animation: bubble-in-received $duration-entrance $ease-out-soft
+
 // Timestamp now lives inside the bubble: small, muted, bottom-right.
 .message__time
     align-self: flex-end
@@ -168,6 +200,16 @@
     bottom: 120px
     right: 6%
     z-index: 1000
+    // BS: Anchored to the emoji button's corner so the panel grows out of the
+    // trigger instead of materialising in mid-air.
+    transform-origin: bottom right
+    animation: panel-in $duration-entrance $ease-out-soft
+    transition: opacity $duration-exit $ease-in-soft, transform $duration-exit $ease-in-soft
+
+.emoji__panel_closing
+    opacity: 0
+    transform: translateY(8px) scale(0.95)
+    pointer-events: none
 
 @media (max-width: 768px)
     .message__board

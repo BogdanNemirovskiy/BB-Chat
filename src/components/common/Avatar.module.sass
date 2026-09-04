@@ -20,6 +20,11 @@
         height: 100%
         object-fit: cover
         display: block
+        opacity: 0
+        transition: opacity $duration-fast ease
+
+    img.loaded
+        opacity: 1
 
 .initial
     font-size: 45cqmin
