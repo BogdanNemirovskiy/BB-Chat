@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Input from './Input';
-import classes from './Signin.module.sass';
-import logo from '../../images/logo.png';
+import AuthShell from './AuthShell';
+import classes from './Auth.module.sass';
 import { validateField, validateAllFields } from './functions';
 import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,7 @@ export default function Signin() {
     const [errors, setErrors] = useState({});
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [signInError, setSignInError] = useState(null);
+    const [submitted, setSubmitted] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -35,6 +36,7 @@ export default function Signin() {
         e.preventDefault();
         setIsSigningIn(true);
         setSignInError(null);
+        setSubmitted(true);
 
         const validationErrors = validateAllFields(formData);
         if (Object.keys(validationErrors).length > 0) {
@@ -134,72 +136,90 @@ export default function Signin() {
     }
 
     return (
-        <>
-            <div className={classes.login__menu}>
-                <div className={classes.logo}>
-                    <img src={logo} alt='Logo' />
-                    <h1>BB Chat</h1>
-                </div>
-
-                <p className={classes.sign_in__text}>Sign in</p>
-
-                {DEMO_EMAIL && (
-                    <div className={classes.demo__container}>
-                        <button
-                            type="button"
-                            className={classes.demo__btn}
-                            onClick={handleDemoSignIn}
-                            disabled={isSigningIn}
-                        >
-                            <Icon icon="ph:play-circle-fill" />
-                            {isSigningIn ? 'Loading...' : 'Try the demo'}
-                        </button>
-                        <p className={classes.demo__caption}>No account needed — look around instantly</p>
-                    </div>
-                )}
-
-                {signInError && <p className={classes.error_text}>{signInError}</p>}
-
-                <form onSubmit={handleSignIn}>
-                    <Input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
-                    />
-                    <Input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        error={errors.password}
-                    />
-
-                    <button type="submit" className={classes.sign_in__btn} disabled={isSigningIn}>
-                        {isSigningIn ? 'Signing in...' : 'Sign in'}
+        <AuthShell
+            title="Welcome back"
+            subtitle="Sign in to pick up your conversations where you left off."
+            footer={
+                <>
+                    Don't have an account? <Link to="/signup">Sign up</Link>
+                </>
+            }
+        >
+            {DEMO_EMAIL && (
+                <div className={classes.demo}>
+                    <button
+                        type="button"
+                        className={classes.demo__btn}
+                        onClick={handleDemoSignIn}
+                        disabled={isSigningIn}
+                    >
+                        <Icon icon="ph:play-circle-fill" />
+                        {isSigningIn ? 'Loading...' : 'Try the demo'}
                     </button>
-                </form>
-                <div>
-                    <div className={classes.sign_up__with}>
-                        <span></span> <p>Sign up with</p> <span></span>
-                    </div>
-                    <div className={classes.sign_up__withIcons}>
-                        <button type="button" aria-label="Sign in with Google" onClick={onGoogleSignIn} disabled={isSigningIn}>
-                            <Icon icon="flat-color-icons:google" />
-                        </button>
-                        <button type="button" aria-label="Sign in with GitHub" onClick={onGitHubSignIn} disabled={isSigningIn}>
-                            <Icon icon="simple-icons:github" style={{ color: 'black' }} />
-                        </button>
-                    </div>
+                    <p className={classes.demo__caption}>No account needed — look around instantly</p>
                 </div>
-                <Link className={classes.sign_in_link} to='/signup'>
-                    Don't have an account?{' '}
-                    <span>Sign up</span>
-                </Link>
+            )}
+
+            {signInError && (
+                <p className={classes.error__banner}>
+                    <Icon icon="lucide:alert-circle" />
+                    {signInError}
+                </p>
+            )}
+
+            <form className={classes.form} onSubmit={handleSignIn}>
+                <Input
+                    type="email"
+                    name="email"
+                    label="Email"
+                    placeholder="you@example.com"
+                    icon="lucide:mail"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                    forceError={submitted}
+                />
+                <Input
+                    type="password"
+                    name="password"
+                    label="Password"
+                    placeholder="Your password"
+                    icon="lucide:lock"
+                    autoComplete="current-password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                    forceError={submitted}
+                />
+
+                <button type="submit" className={classes.submit__btn} disabled={isSigningIn}>
+                    {isSigningIn ? 'Signing in...' : 'Sign in'}
+                </button>
+            </form>
+
+            <div className={classes.divider}>or continue with</div>
+
+            <div className={classes.social}>
+                <button
+                    type="button"
+                    className={classes.social__btn}
+                    onClick={onGoogleSignIn}
+                    disabled={isSigningIn}
+                >
+                    <Icon icon="flat-color-icons:google" />
+                    Google
+                </button>
+                <button
+                    type="button"
+                    className={classes.social__btn}
+                    onClick={onGitHubSignIn}
+                    disabled={isSigningIn}
+                >
+                    <Icon icon="simple-icons:github" />
+                    GitHub
+                </button>
             </div>
-        </>
+        </AuthShell>
     );
 }

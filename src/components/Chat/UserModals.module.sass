@@ -1,0 +1,197 @@
+@use '../../styles/tokens' as *
+
+// Shared styling for the profile / report / block dialogs opened from the
+// chat header menu. The dialog shell itself lives in common/Modal.module.sass.
+
+.profile
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: $space-2
+    padding-bottom: $space-4
+
+.profile__name
+    margin: 0
+    font-size: 1.375rem
+    font-weight: 600
+
+.profile__badge
+    padding: 2px $space-2
+    background-color: rgba(255, 107, 107, .15)
+    border: 1px solid rgba(255, 107, 107, .4)
+    border-radius: $radius-pill
+    color: #ff6b6b
+    font-size: .75rem
+    letter-spacing: .02em
+
+.details
+    display: flex
+    flex-direction: column
+    gap: $space-2
+    margin: 0
+    padding-top: $space-3
+    border-top: 1px solid rgba(255, 255, 255, .07)
+
+.details__row
+    display: flex
+    justify-content: space-between
+    gap: $space-4
+
+    dt
+        color: $text-muted
+        font-size: .875rem
+
+    dd
+        margin: 0
+        font-size: .9375rem
+        text-align: right
+        overflow-wrap: anywhere
+
+.hint
+    margin: 0
+    color: $text-muted
+    text-align: center
+
+.form
+    display: flex
+    flex-direction: column
+    gap: $space-4
+
+.reasons
+    display: flex
+    flex-direction: column
+    gap: $space-2
+    margin: 0
+    padding: 0
+    border: none
+
+    legend
+        padding: 0 0 $space-2
+        color: $text-muted
+        font-size: .875rem
+
+.reason
+    display: flex
+    align-items: center
+    gap: $space-2
+    padding: $space-2 $space-3
+    background-color: $surface-0
+    border: 1px solid transparent
+    border-radius: $radius-sm
+    cursor: pointer
+    transition: background-color $transition-base, border-color $transition-base
+
+    &:hover
+        background-color: $surface-2
+
+    input
+        accent-color: $accent
+        cursor: pointer
+
+    &:has(input:checked)
+        border-color: rgba(255, 215, 0, .5)
+
+.field
+    display: flex
+    flex-direction: column
+    gap: $space-2
+
+    span
+        color: $text-muted
+        font-size: .875rem
+
+    textarea
+        padding: $space-3
+        background-color: $surface-0
+        border: 1px solid rgba(255, 255, 255, .1)
+        border-radius: $radius-sm
+        color: $text-primary
+        font-size: .9375rem
+        resize: vertical
+
+        &:focus
+            outline: none
+            border-color: rgba(255, 215, 0, .5)
+
+.error
+    margin: 0
+    color: #ff6b6b
+    font-size: .875rem
+
+.actions
+    display: flex
+    justify-content: flex-end
+    gap: $space-2
+
+.btn__primary,
+.btn__ghost,
+.btn__danger
+    padding: .6rem 1.1rem
+    border-radius: $radius-pill
+    font-size: .9375rem
+    font-weight: 600
+    cursor: pointer
+    transition: background-color $transition-base, color $transition-base, border-color $transition-base, opacity $transition-base
+
+    &:disabled
+        opacity: .6
+        cursor: default
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 2px
+
+.btn__primary
+    width: 100%
+    background: $header-gradient
+    border: 1px solid rgba(255, 215, 0, .4)
+    color: #1f1a00
+
+    &:hover
+        background: $surface-2
+        color: $accent
+
+.btn__ghost
+    background: none
+    border: 1px solid rgba(255, 255, 255, .15)
+    color: $text-primary
+
+    &:hover
+        background-color: $surface-2
+
+.btn__danger
+    background-color: #d94141
+    border: 1px solid #d94141
+    color: #fff
+
+    &:hover:not(:disabled)
+        background-color: #c22f2f
+
+.success
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: $space-2
+    padding-bottom: $space-4
+    text-align: center
+
+    svg
+        font-size: 2.5rem
+        color: #2dce98
+
+    p
+        margin: 0
+        color: $text-muted
+
+.confirm
+    display: flex
+    flex-direction: column
+    gap: $space-4
+
+    p
+        margin: 0
+        color: $text-muted
+        line-height: 1.5
+
+    strong
+        color: $text-primary

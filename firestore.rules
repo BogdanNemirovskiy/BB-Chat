@@ -19,6 +19,17 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Reports: write-only from the client. A signed-in user may file a report as
+    // themselves; nobody may read, edit or delete them from the app — moderation
+    // happens in the Firebase console.
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reportedUserId is string
+        && request.resource.data.reason is string;
+      allow read, update, delete: if false;
+    }
+
     // Chats: only the participants listed in userIds may read or modify.
     match /chats/{chatId} {
       // read stays unguarded: on a list query Firestore must prove the rule from

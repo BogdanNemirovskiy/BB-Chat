@@ -1,0 +1,71 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include fade-in-keyframes
+@include rise-in-keyframes
+
+.backdrop
+    position: fixed
+    inset: 0
+    z-index: 2000
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: $space-4
+    background-color: rgba(0, 0, 0, .55)
+    backdrop-filter: blur(2px)
+    animation: fade-in $duration-entrance ease
+
+.dialog
+    display: flex
+    flex-direction: column
+    width: 100%
+    max-width: 26rem
+    max-height: 85vh
+    overflow: hidden
+    background-color: $surface-1
+    border: 1px solid rgba(255, 255, 255, .08)
+    border-radius: $radius-lg
+    box-shadow: $shadow-soft
+    color: $text-primary
+    animation: rise-in $duration-entrance $ease-out-soft
+
+.dialog__head
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: $space-3
+    padding: $space-4 $space-4 $space-3
+    border-bottom: 1px solid rgba(255, 255, 255, .07)
+
+    h2
+        margin: 0
+        font-size: 1.125rem
+        font-weight: 600
+
+    button
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 2rem
+        height: 2rem
+        padding: 0
+        background: none
+        border: none
+        border-radius: 50%
+        color: $text-muted
+        font-size: 1.125rem
+        cursor: pointer
+        transition: background-color $transition-base, color $transition-base
+
+        &:hover
+            background-color: $surface-2
+            color: $text-primary
+
+        &:focus-visible
+            outline: 2px solid $accent
+            outline-offset: 2px
+
+.dialog__body
+    padding: $space-4
+    overflow-y: auto

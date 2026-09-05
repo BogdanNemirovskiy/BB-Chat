@@ -70,14 +70,19 @@ a
         color: $user-text-color
         margin: 0
 
+// BS: The wrapper is the positioning context so the icon can be centred against
+// the input's real height instead of a hand-tuned top margin.
 .search
+    position: relative
 
     svg
-        height: auto
+        height: 20px
         width: 20px
         position: absolute
-        margin-top: .65rem
-        margin-left: .5rem
+        left: .5rem
+        top: 50%
+        transform: translateY(-50%)
+        pointer-events: none
 
     input
         font-size: 1.05rem
@@ -187,21 +192,49 @@ a
         height: 70px
 
 .signout__btn
-    width: 50%
-    background-color: #FFD700
-    padding: 1rem 2rem
-    border-radius: 20px
-    border: 1px solid #FFD700
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: .45rem
+    width: calc(100% - 3rem)
+    max-width: 13rem
+    margin: 0 auto 1rem
+    padding: .85rem 1.25rem
+    line-height: 1
+    background: $header-gradient
+    color: #1f1a00
+    border: 1px solid rgba(255, 215, 0, .4)
+    border-radius: $radius-pill
     font-size: 1rem
     font-weight: 600
-    transition: .3s
-    margin: 0 auto
+    letter-spacing: .01em
+    box-shadow: $shadow-soft
     cursor: pointer
+    transition: background $transition-base, color $transition-base, border-color $transition-base, transform $transition-base, box-shadow $transition-base
+
+    svg
+        flex-shrink: 0
+        width: 1.15rem
+        height: 1.15rem
+        transition: transform $transition-base
 
     &:hover
-        color: #f1c40f
-        background-color: #302f2f
-        border: 1px solid #4A4A4A
+        background: $surface-2
+        color: $accent
+        border-color: rgba(255, 215, 0, .55)
+        transform: translateY(-2px)
+        box-shadow: $shadow-bubble
+
+        svg
+            transform: translateX(-3px)
+
+    &:active
+        transform: translateY(0)
+        box-shadow: $shadow-1
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 3px
 
 .no_profile__image
     width: 64px
@@ -214,97 +247,136 @@ a
     margin: 0.75rem 0 0 1.6rem
     animation: nudge $duration-entrance $ease-out-soft
 
-// Mobile styles
+// ── Mobile header ────────────────────────────────────────────
+// BS: Laid out with flexbox rather than the percentage-based absolute
+// positioning it used to rely on — those values were tuned for one screen
+// height and drifted on every other phone.
 
-.sidebar__header
+.mobile__header
     display: flex
-    justify-content: center
     align-items: center
-    background-color: #FFD700
+    gap: $space-3
     width: 100%
-    border-radius: 0 0 5px 5px
+    padding: .75rem 1rem
+    padding-top: calc(.75rem + env(safe-area-inset-top))
+    background: $header-gradient
+    border-radius: 0 0 $radius-lg $radius-lg
+    box-shadow: $shadow-header
 
-    p
-        font-size: 1.35rem
-        font-weight: bold
-        color: #000
-        margin: 0
+.mobile__avatarLink
+    display: flex
+    flex-shrink: 0
 
-// Mobile styles
+.mobile__avatar
+    display: flex
+    border-radius: 50%
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0 2px 6px rgba(0, 0, 0, .18)
 
-// BS: The title and the search field replace each other in the same slot, so
-// each slides in from the side it conceptually comes from rather than popping.
-.mobile__title
+// BS: The brand and the search field trade places in the same row, so each
+// arrives from the side it conceptually comes from rather than popping in.
+.mobile__brand
+    flex: 1
+    margin: 0
+    color: #1b1600
+    font-size: 1.35rem
+    font-weight: 700
+    letter-spacing: -.01em
+    text-align: center
     animation: slide-in-left $duration-entrance $ease-out-soft
 
-.mobile__input
-    background-color: #FFD700
-    border: 1px solid #FFD700
-    border-bottom: 1px solid #534700
-    font-size: 1.25rem
-    width: 10rem
+.mobile__iconBtn
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+    width: 2.5rem
+    height: 2.5rem
+    padding: 0
+    background-color: rgba(0, 0, 0, .06)
+    border: none
+    border-radius: 50%
+    color: #1b1600
+    font-size: 1.35rem
+    cursor: pointer
+    transition: background-color $transition-base, transform $transition-base
+
+    &:hover
+        background-color: rgba(0, 0, 0, .16)
+
+    &:active
+        transform: scale(.94)
+
+    &:focus-visible
+        outline: 2px solid rgba(0, 0, 0, .45)
+        outline-offset: 2px
+
+.mobile__searchBar
+    display: flex
+    align-items: center
+    gap: .5rem
+    flex: 1
+    min-width: 0
+    padding: .5rem .875rem
+    background-color: rgba(255, 255, 255, .92)
+    border-radius: $radius-pill
     animation: slide-in-right $duration-entrance $ease-out-soft
 
+    svg
+        flex-shrink: 0
+        width: 1.15rem
+        height: 1.15rem
+        color: #6b6250
+
+    input
+        flex: 1
+        min-width: 0
+        padding: 0
+        background: none
+        border: none
+        outline: none
+        color: #1b1600
+        font-size: 1rem
+
+        &::placeholder
+            color: #8a8271
+
+// BS: The phone layout is a full-height flex column — header, list, sign out —
+// instead of the old stack of vh guesses (`height: calc(100vh - 37vh)`), which
+// only lined up on the one device it was tuned against.
 @media (max-width: 600px)
     .sidebar
         position: fixed
-
-    .currentUser_profile__image
-        position: absolute
-        left: 5%
-        top: 21%
-
-    .sidebar__header
-        padding: 10% 0
-        position: relative
-        bottom: 2px
-
-    .mobile__search
-        svg
-            height: 1.75rem
-            width: auto
-            margin-bottom: 2%
-            position: absolute
-            right: 5%
-            top: 37%
-
-    .sidebar
-        border: none
-        margin: 0 0 3% 0
+        top: 0
+        left: 0
         width: 100%
-
-    .search
-        input
-            width: 90%
+        min-width: 0
+        height: 100vh
+        height: 100dvh
+        margin: 0
+        border: none
+        border-radius: 0
 
     .chat__list
-        height: calc(100vh - 30vh)
-        max-height: 70vh
+        flex: 1
+        min-height: 0
+        height: auto
+        max-height: none
+        padding: 0 .5rem .5rem
+
+    .found__user
+        margin: 1rem 1rem 0
+
+    .error
+        margin: .75rem 0 0 1rem
+
+    .signout__btn
+        margin-bottom: calc(1rem + env(safe-area-inset-bottom))
 
 @media (max-width: 400px)
+    .mobile__header
+        gap: $space-2
+        padding: .625rem .75rem
+        padding-top: calc(.625rem + env(safe-area-inset-top))
 
-    .currentUser_profile__image
-        top: 10%
-
-    .sidebar__header
-        padding: 8% 0
-
-    .mobile__search
-        svg
-            position: absolute
-            margin-bottom: 2%
-            right: 2.5%
-            top: 37%
-
-    .sidebar
-        border: 1% solid #242529
-        margin: 0 0 3% 0
-        width: 100%
-
-    .search
-        input
-            width: 90%
-
-    .chat__list
-        height: calc( 100vh - 37vh )
-        max-height: calc( 100vh - 35vh )
+    .mobile__brand
+        font-size: 1.2rem

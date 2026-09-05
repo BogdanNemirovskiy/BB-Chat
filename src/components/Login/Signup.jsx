@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Input from './Input';
-import classes from './Signup.module.sass';
-import logo from '../../images/logo.png';
+import AuthShell from './AuthShell';
+import classes from './Auth.module.sass';
 import { validateField } from './functions';
 import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
 import { Icon } from '@iconify/react/dist/iconify.js';
@@ -16,11 +16,13 @@ export default function Signup() {
     const [isRegistering, setIsRegistering] = useState(false);
     const [isSigningIn, setIsSigningIn] = useState(false);
     const [signInError, setSignInError] = useState(null);
+    const [submitted, setSubmitted] = useState(false);
     const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
         e.preventDefault();
         setIsRegistering(true);
+        setSubmitted(true);
 
         const validationErrors = validateAllFields(formData);
         if (Object.keys(validationErrors).length > 0) {
@@ -101,64 +103,87 @@ export default function Signup() {
     }
 
     return (
-        <div className={classes.login__menu}>
-            <div className={classes.logo}>
-                <img src={logo} alt="Logo" />
-                <h1>BB Chat</h1>
-            </div>
-            <p className={classes.sign_up__text}>Sign up</p>
+        <AuthShell
+            title="Create your account"
+            subtitle="It takes less than a minute — then you can start chatting."
+            footer={
+                <>
+                    Already have an account? <Link to="/signin">Sign in</Link>
+                </>
+            }
+        >
+            {(signInError || errors?.general) && (
+                <p className={classes.error__banner}>
+                    <Icon icon="lucide:alert-circle" />
+                    {signInError || errors.general}
+                </p>
+            )}
 
-            {signInError && <p className={classes.error_text}>{signInError}</p>}
-            {errors?.general && <p className={classes.error_text}>{errors.general}</p>}
-
-            <form onSubmit={handleSignUp}>
+            <form className={classes.form} onSubmit={handleSignUp}>
                 <Input
                     type="text"
                     name="username"
-                    placeholder="Username"
+                    label="Username"
+                    placeholder="How others will see you"
+                    icon="lucide:user-round"
+                    autoComplete="username"
                     value={formData?.username || ''}
                     onChange={handleChange}
                     error={errors?.username}
+                    forceError={submitted}
                 />
                 <Input
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    label="Email"
+                    placeholder="you@example.com"
+                    icon="lucide:mail"
+                    autoComplete="email"
                     value={formData?.email || ''}
                     onChange={handleChange}
                     error={errors?.email}
+                    forceError={submitted}
                 />
                 <Input
                     type="password"
                     name="password"
-                    placeholder="Password"
+                    label="Password"
+                    placeholder="At least 8 characters"
+                    icon="lucide:lock"
+                    autoComplete="new-password"
                     value={formData?.password || ''}
                     onChange={handleChange}
                     error={errors?.password}
+                    forceError={submitted}
                 />
 
-                <button type="submit" className={classes.sign_up__btn} disabled={isRegistering}>
-                    {isRegistering ? 'Signing up...' : 'Sign up'}
+                <button type="submit" className={classes.submit__btn} disabled={isRegistering}>
+                    {isRegistering ? 'Signing up...' : 'Create account'}
                 </button>
             </form>
-            <div>
-                <div className={classes.sign_up__with}>
-                    <span></span> <p>Sign up with</p> <span></span>
-                </div>
-                <div className={classes.sign_up__withIcons}>
-                    <button type="button" aria-label="Sign up with Google" onClick={onGoogleSignIn} disabled={isSigningIn}>
-                        <Icon icon="flat-color-icons:google" />
-                    </button>
-                    <button type="button" aria-label="Sign up with GitHub" onClick={onGitHubSignIn} disabled={isSigningIn}>
-                        <Icon icon="simple-icons:github" style={{ color: 'black' }} />
-                    </button>
-                </div>
-            </div>
 
-            <Link className={classes.sign_in_link} to='/signin'>
-                Already have an account?{' '}
-                <span>Sign in</span>
-            </Link>
-        </div>
+            <div className={classes.divider}>or continue with</div>
+
+            <div className={classes.social}>
+                <button
+                    type="button"
+                    className={classes.social__btn}
+                    onClick={onGoogleSignIn}
+                    disabled={isSigningIn}
+                >
+                    <Icon icon="flat-color-icons:google" />
+                    Google
+                </button>
+                <button
+                    type="button"
+                    className={classes.social__btn}
+                    onClick={onGitHubSignIn}
+                    disabled={isSigningIn}
+                >
+                    <Icon icon="simple-icons:github" />
+                    GitHub
+                </button>
+            </div>
+        </AuthShell>
     );
 }

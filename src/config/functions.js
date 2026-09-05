@@ -1,4 +1,4 @@
-import { doc, getDoc, collection, query, where, getDocs, updateDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "./firebaseConfig";
 
 export const getUserData = async () => {
@@ -53,6 +53,43 @@ export const getUserChats = async () => {
         console.error("Error fetching user chats:", error);
         throw new Error("Unable to fetch user chats. Please try again later.");
     }
+};
+
+
+export const getUserProfile = async (uid) => {
+    if (!uid) return null;
+
+    const snapshot = await getDoc(doc(db, 'users', uid));
+    return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+};
+
+
+// BS: The block list lives on the blocker's own profile document, which is the
+// only user document Firestore rules let them write.
+export const setUserBlocked = async (targetUid, blocked) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error("User not authenticated");
+    if (!targetUid) throw new Error("No user to block");
+
+    await updateDoc(doc(db, 'users', uid), {
+        blockedUsers: blocked ? arrayUnion(targetUid) : arrayRemove(targetUid),
+    });
+};
+
+
+export const submitUserReport = async ({ reportedUserId, reason, details = '', chatId = null }) => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error("User not authenticated");
+    if (!reportedUserId || !reason) throw new Error("Missing report details");
+
+    await addDoc(collection(db, 'reports'), {
+        reporterId: uid,
+        reportedUserId,
+        reason,
+        details: details.trim().slice(0, 1000),
+        chatId,
+        createdAt: serverTimestamp(),
+    });
 };
 
 

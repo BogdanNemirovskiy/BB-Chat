@@ -1,25 +1,21 @@
-import { Icon } from "@iconify/react/dist/iconify.js";
-
 export const validateField = (name, value) => {
-    let error = '';
-
     if (name === 'email') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            error = <Icon icon='icon-park-solid:error' style={{ color: "#ff0000" }} />;
-        }
-    } else if (name === 'username') {
-        if (value.length < 3) {
-            error = <Icon icon='icon-park-solid:error' style={{ color: "#ff0000" }} />;
-        }
-    } else if (name === 'password') {
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordRegex.test(value)) {
-            error = <Icon icon='icon-park-solid:error' style={{ color: "#ff0000" }} />;
-        }
+        return emailRegex.test(value) ? '' : 'Enter a valid email address.';
     }
 
-    return error;
+    if (name === 'username') {
+        return value.length >= 3 ? '' : 'Username must be at least 3 characters.';
+    }
+
+    if (name === 'password') {
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        return passwordRegex.test(value)
+            ? ''
+            : 'Use 8 or more characters with at least one letter and one number.';
+    }
+
+    return '';
 };
 
 export const validateAllFields = (formData) => {

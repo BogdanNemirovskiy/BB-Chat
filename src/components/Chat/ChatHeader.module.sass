@@ -1,0 +1,248 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include panel-in-keyframes
+
+// ── v2 — current header ──────────────────────────────────────
+
+.header
+    display: flex
+    align-items: center
+    gap: $space-2
+    width: 98%
+    padding: .5rem .75rem .5rem 1rem
+    background: $header-gradient
+    border-radius: $radius-lg
+    box-shadow: $shadow-header
+
+.identity
+    display: flex
+    align-items: center
+    gap: .875rem
+    min-width: 0
+    padding: .3rem .6rem .3rem .3rem
+    background: none
+    border: none
+    border-radius: $radius-pill
+    color: #1b1600
+    text-align: left
+    cursor: pointer
+    transition: background-color $transition-base
+
+    &:hover
+        background-color: rgba(0, 0, 0, .07)
+
+    &:focus-visible
+        outline: 2px solid rgba(0, 0, 0, .45)
+        outline-offset: 2px
+
+.identity__avatar
+    display: flex
+    flex-shrink: 0
+    border-radius: 50%
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .6), 0 2px 6px rgba(0, 0, 0, .18)
+
+.identity__text
+    display: flex
+    flex-direction: column
+    align-items: flex-start
+    gap: 1px
+    min-width: 0
+
+.identity__name
+    max-width: 100%
+    overflow: hidden
+    font-size: 1.5rem
+    font-weight: 600
+    line-height: 1.2
+    letter-spacing: -.01em
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.identity__meta
+    color: rgba(0, 0, 0, .55)
+    font-size: .8125rem
+    line-height: 1.2
+
+.icon__btn
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+    width: 2.5rem
+    height: 2.5rem
+    padding: 0
+    background-color: rgba(0, 0, 0, .06)
+    border: none
+    border-radius: 50%
+    color: #1b1600
+    font-size: 1.35rem
+    cursor: pointer
+    transition: background-color $transition-base, transform $transition-base
+
+    &:hover
+        background-color: rgba(0, 0, 0, .16)
+
+    &:active
+        transform: scale(.94)
+
+    &:focus-visible
+        outline: 2px solid rgba(0, 0, 0, .45)
+        outline-offset: 2px
+
+.menu__wrap
+    position: relative
+    margin-left: auto
+
+// BS: Anchored to the trigger's corner so the menu grows out of the button —
+// same treatment as the emoji panel in MessageBoard.
+.menu
+    position: absolute
+    top: calc(100% + .5rem)
+    right: 0
+    z-index: 60
+    display: flex
+    flex-direction: column
+    min-width: 13rem
+    padding: $space-1
+    background-color: $surface-1
+    border: 1px solid rgba(255, 255, 255, .08)
+    border-radius: $radius-md
+    box-shadow: $shadow-soft
+    transform-origin: top right
+    animation: panel-in $duration-entrance $ease-out-soft
+    transition: opacity $duration-exit $ease-in-soft, transform $duration-exit $ease-in-soft
+
+    button
+        display: flex
+        align-items: center
+        gap: .625rem
+        width: 100%
+        padding: .625rem .75rem
+        background: none
+        border: none
+        border-radius: $radius-sm
+        color: $text-primary
+        font-size: .9375rem
+        text-align: left
+        cursor: pointer
+        transition: background-color $transition-base
+
+        &:hover
+            background-color: $surface-2
+
+        &:focus-visible
+            outline: 2px solid $accent
+            outline-offset: -2px
+
+        svg
+            flex-shrink: 0
+            font-size: 1.125rem
+            color: $text-muted
+
+.menu_closing
+    opacity: 0
+    transform: translateY(-6px) scale(.97)
+    pointer-events: none
+
+.menu__item_danger
+    color: #ff6b6b
+
+    svg
+        color: currentColor
+
+    &:hover
+        background-color: rgba(255, 107, 107, .12)
+
+@media (max-width: 768px)
+    .header
+        width: 100%
+        gap: $space-1
+        padding: .5rem .75rem
+        border-radius: 0
+
+    .identity
+        gap: .625rem
+
+    .identity__name
+        font-size: 1.15rem
+
+    .identity__meta
+        font-size: .75rem
+
+// ── v1 — pre-redesign header, kept for a quick rollback ──────
+// Flip HEADER_VARIANT in ChatHeader.jsx to 'v1' to bring these back.
+
+.header_v1
+    display: flex
+    justify-content: space-between
+    align-items: center
+    width: 98%
+    background: $header-gradient
+    border-radius: 10px
+    padding: 0.5rem 1rem
+    box-shadow: $shadow-header
+
+.header__icons
+    display: flex
+
+    // BS: Direct child only — the v1 bar now also hosts the options menu, whose
+    // icons must not inherit the back arrow's 3rem sizing.
+    > svg
+        height: 3rem
+        width: auto
+        margin-right: 1.5rem
+        cursor: pointer
+
+.header__profile
+    display: flex
+    align-items: center
+
+    p
+        margin: 0 0 0 1.25rem
+        font-size: 2.125rem
+        font-weight: 500
+
+.profile__image
+    margin-left: 1.5rem
+
+@media (max-width: 768px)
+    .header_v1
+        flex-direction: row-reverse
+        justify-content: center
+        align-items: center
+        width: 100%
+        height: 5rem
+        border-radius: 0
+
+        .header__icons > svg
+            position: fixed
+            top: 3.5%
+            left: 2%
+
+        .header__profile
+            position: relative
+            top: .25rem
+            flex-direction: row-reverse
+
+            img
+                width: 55px
+                height: 55px
+
+            p
+                font-size: 1.25rem
+                margin: 0 0.5rem
+
+@media (max-width: 400px)
+    .header_v1
+        padding: 0.5rem
+        align-items: center
+
+        img
+            width: 40px
+            height: 40px
+            margin: 0.5rem 0
+
+        p
+            font-size: 1rem
+            margin: 0

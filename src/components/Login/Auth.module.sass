@@ -1,0 +1,256 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include rise-in-keyframes
+@include nudge-keyframes
+
+// Shared shell for the sign-in and sign-up screens: brand row, centred card,
+// social row and footer link. Field styling lives in Input.module.sass.
+
+.page
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    gap: $space-6
+    // BS: body has overflow:hidden, so the page owns its own scrolling —
+    // otherwise the card is simply cut off on short viewports.
+    min-height: 100vh
+    max-height: 100vh
+    min-height: 100dvh
+    max-height: 100dvh
+    overflow-y: auto
+    padding: clamp(1.25rem, 4vw, 2.5rem) $space-4
+
+// BS: The bee is taken out of flow and floated over the wordmark instead of
+// sitting in the flex row — a margin-based overlap shrinks its box and throws
+// off centering (and compounds with every future size tweak). Positioning it
+// relative to the text means .brand's width is just the text's width, so
+// .page's centering always lands on the wordmark, bee included.
+.brand
+    position: relative
+    flex-shrink: 0
+    animation: rise-in $duration-entrance $ease-out-soft both
+
+    img
+        position: absolute
+        left: -3.75rem
+        top: -3rem
+        width: auto
+        height: 5.75rem
+
+    span
+        display: block
+        color: $accent
+        font-size: 2.75rem
+        font-weight: 700
+        letter-spacing: -.02em
+
+.card
+    width: min(26rem, 100%)
+    padding: clamp(1.5rem, 5vw, 2.25rem)
+    background-color: $surface-1
+    border: 1px solid rgba(255, 255, 255, .07)
+    border-radius: 20px
+    box-shadow: $shadow-soft
+    animation: rise-in $duration-entrance $ease-out-soft both
+    animation-delay: 80ms
+
+.card__title
+    margin: 0
+    color: $text-primary
+    font-size: 1.5rem
+    font-weight: 600
+    letter-spacing: -.01em
+
+.card__subtitle
+    margin: .35rem 0 0
+    color: $text-muted
+    font-size: .9375rem
+    line-height: 1.45
+
+.demo
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: .5rem
+    margin-top: $space-6
+
+.demo__btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: .5rem
+    width: 100%
+    padding: .8rem 1.25rem
+    background-color: rgba(255, 215, 0, .08)
+    border: 1px solid rgba(255, 215, 0, .45)
+    border-radius: $radius-pill
+    color: $accent
+    font-size: .9375rem
+    font-weight: 600
+    cursor: pointer
+    transition: background-color $transition-base, color $transition-base, border-color $transition-base
+
+    svg
+        font-size: 1.1rem
+
+    &:hover:not(:disabled)
+        background-color: $accent
+        border-color: $accent
+        color: #1f1a00
+
+    &:disabled
+        opacity: .6
+        cursor: default
+
+.demo__caption
+    margin: 0
+    color: $text-muted
+    font-size: .8125rem
+    text-align: center
+
+.error__banner
+    display: flex
+    align-items: center
+    gap: $space-2
+    margin: $space-4 0 0
+    padding: .75rem $space-3
+    background-color: rgba(255, 107, 107, .1)
+    border: 1px solid rgba(255, 107, 107, .35)
+    border-radius: $radius-sm
+    color: #ff8a8a
+    font-size: .875rem
+    animation: nudge $duration-entrance $ease-out-soft
+
+    svg
+        flex-shrink: 0
+        font-size: 1.1rem
+
+.form
+    display: flex
+    flex-direction: column
+    gap: $space-4
+    margin-top: $space-6
+
+.submit__btn
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 100%
+    margin-top: $space-2
+    padding: .9rem 1.25rem
+    background: $header-gradient
+    border: 1px solid rgba(255, 215, 0, .4)
+    border-radius: $radius-pill
+    color: #1f1a00
+    font-size: 1rem
+    font-weight: 600
+    cursor: pointer
+    box-shadow: $shadow-1
+    transition: transform $transition-base, box-shadow $transition-base, filter $transition-base, opacity $transition-base
+
+    &:hover:not(:disabled)
+        filter: brightness(1.04)
+        transform: translateY(-2px)
+        box-shadow: $shadow-bubble
+
+    &:active:not(:disabled)
+        transform: translateY(0)
+        box-shadow: $shadow-1
+
+    &:disabled
+        opacity: .65
+        cursor: default
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 3px
+
+.divider
+    display: flex
+    align-items: center
+    gap: $space-3
+    margin: $space-6 0 $space-4
+    color: $text-muted
+    font-size: .8125rem
+
+    &::before,
+    &::after
+        content: ''
+        flex: 1
+        height: 1px
+        background-color: rgba(255, 255, 255, .1)
+
+.social
+    display: grid
+    grid-template-columns: 1fr 1fr
+    gap: $space-3
+
+.social__btn
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: .5rem
+    padding: .7rem
+    background-color: $surface-0
+    border: 1px solid rgba(255, 255, 255, .1)
+    border-radius: $radius-md
+    color: $text-primary
+    font-size: .9375rem
+    font-weight: 500
+    cursor: pointer
+    transition: background-color $transition-base, border-color $transition-base, transform $transition-base
+
+    // BS: The GitHub mark used to be rendered black on a dark page — invisible.
+    // Both provider icons inherit their colour from the button now.
+    svg
+        font-size: 1.15rem
+
+    &:hover:not(:disabled)
+        background-color: $surface-2
+        border-color: rgba(255, 255, 255, .2)
+
+    &:active:not(:disabled)
+        transform: scale(.98)
+
+    &:disabled
+        opacity: .6
+        cursor: default
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 2px
+
+.footer
+    margin: 0
+    color: $text-muted
+    font-size: .9375rem
+    text-align: center
+    animation: rise-in $duration-entrance $ease-out-soft both
+    animation-delay: 140ms
+
+    a
+        color: $accent
+        font-weight: 600
+        text-decoration: none
+
+        &:hover
+            text-decoration: underline
+
+@media (max-width: 600px)
+    .page
+        justify-content: flex-start
+        gap: $space-4
+
+    .brand
+        img
+            left: -2.5rem
+            top: -2rem
+            height: 4rem
+
+        span
+            font-size: 2rem
+
+    .card
+        border-radius: 16px

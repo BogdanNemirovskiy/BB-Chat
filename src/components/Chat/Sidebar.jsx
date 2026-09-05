@@ -189,36 +189,55 @@ export default function Sidebar({ handleSelectChat, selectedChatId, enterFrom })
     return (
         <div className={sidebarClass}>
             {isMobileVersion ? (
-                <div className={classes.sidebar__header}>
-                    <Link to="edit-profile">
-                        <div className={classes.currentUser_profile__image}>
-                            <div className={classes.user__img}>
-                                <Avatar
-                                    name={userData?.userName || currentUser?.displayName}
-                                    photoURL={userData?.photoURL}
+                <div className={classes.mobile__header}>
+                    {!isMobileInputActive ? (
+                        <>
+                            <Link to="edit-profile" className={classes.mobile__avatarLink}>
+                                <span className={classes.mobile__avatar}>
+                                    <Avatar
+                                        name={userData?.userName || currentUser?.displayName}
+                                        photoURL={userData?.photoURL}
+                                        size={42}
+                                    />
+                                </span>
+                            </Link>
+                            <p className={classes.mobile__brand}>BB Chat</p>
+                            <button
+                                type="button"
+                                className={classes.mobile__iconBtn}
+                                onClick={() => setIsMobileInputActive(true)}
+                                aria-label="Search for a user"
+                            >
+                                <Icon icon="lucide:search" />
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <div className={classes.mobile__searchBar}>
+                                <Icon icon="lucide:search" />
+                                <input
+                                    type="text"
+                                    autoFocus
+                                    value={searchInput}
+                                    onChange={handleSearchChange}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
+                                    placeholder="Search username..."
                                 />
                             </div>
-                        </div>
-                    </Link>
-                    {!isMobileInputActive ? (
-                        <p className={classes.mobile__title}>BB Chat</p>
-                    ) : (
-                        <input
-                            type="text"
-                            value={searchInput}
-                            onChange={handleSearchChange}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearchUser()}
-                            className={classes.mobile__input}
-                            placeholder="Search username..."
-                        />
+                            <button
+                                type="button"
+                                className={classes.mobile__iconBtn}
+                                onClick={() => {
+                                    setIsMobileInputActive(false);
+                                    setSearchInput('');
+                                    setError('');
+                                }}
+                                aria-label="Close search"
+                            >
+                                <Icon icon="lucide:x" />
+                            </button>
+                        </>
                     )}
-                    <div className={classes.mobile__search}>
-                        <Icon
-                            icon="material-symbols:search"
-                            style={{ color: 'black', cursor: 'pointer' }}
-                            onClick={() => setIsMobileInputActive((prev) => !prev)}
-                        />
-                    </div>
                 </div>
             ) : (
                 <Link to="edit-profile">
@@ -311,6 +330,7 @@ export default function Sidebar({ handleSelectChat, selectedChatId, enterFrom })
 
 
             <button className={classes.signout__btn} onClick={handleSignOut}>
+                <Icon icon="material-symbols:logout-rounded" />
                 Sign out
             </button>
         </div>

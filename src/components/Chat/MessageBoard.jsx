@@ -15,8 +15,9 @@ import {
 import EmojiPicker from "emoji-picker-react";
 import classes from "./MessageBoard.module.sass";
 import ProfileImg from "../../images/no-profile-picture.png";
-import Avatar from "../common/Avatar";
+import ChatHeader from "./ChatHeader";
 import { useDelayedUnmount } from "../../hooks/useDelayedUnmount";
+import { useModeration } from "../../hooks/useModeration";
 
 // Must match $duration-exit in styles/_tokens.sass.
 const EMOJI_EXIT_MS = 170;
@@ -41,6 +42,10 @@ export default function MessageBoard({
   const emojiPanel = useDelayedUnmount(showEmojiPicker, EMOJI_EXIT_MS);
 
   const [isMobileVersion, setIsMobileVersion] = useState(false);
+
+  const { isBlocked, setBlocked, reportUser } = useModeration();
+  const otherUser = selectedChat?.selectedUser;
+  const isUserBlocked = isBlocked(otherUser?.id);
 
   useEffect(() => {
     if (selectedChat) {
@@ -188,6 +193,14 @@ export default function MessageBoard({
     setShowEmojiPicker((prevState) => !prevState); // Toggle visibility of emoji picker
   };
 
+  const canSend = newMessage.trim() !== "";
+
+  // BS: Blocking is enforced in the client only — Firestore still delivers the
+  // messages, they are just kept off screen until the block is lifted.
+  const visibleMessages = isUserBlocked
+    ? messages.filter((msg) => msg.senderId !== otherUser?.id)
+    : messages;
+
   const boardClass = [
     classes.message__board,
     enterFrom === "right" ? classes.enter_from__right : "",
@@ -197,47 +210,16 @@ export default function MessageBoard({
 
   return (
     <div className={boardClass}>
-      {isChatSelected && selectedChat?.selectedUser && (
-        <div className={classes.chat__header}>
-          {isMobileVersion ? (
-            <div className={classes.header__profile}>
-              <p className={classes.profile__name}>
-                {selectedChat.selectedUser.userName || "User"}
-              </p>
-              <div className={classes.profile__image}>
-                <Avatar
-                  name={selectedChat.selectedUser.userName}
-                  photoURL={selectedChat.selectedUser.photoURL}
-                  size={56}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className={classes.header__profile}>
-              <div className={classes.profile__image}>
-                <Avatar
-                  name={selectedChat.selectedUser.userName}
-                  photoURL={selectedChat.selectedUser.photoURL}
-                  size={56}
-                />
-              </div>
-              <p className={classes.profile__name}>
-                {selectedChat.selectedUser.userName || "User"}
-              </p>
-            </div>
-          )}
-          <div className={classes.header__icons}>
-            {isMobileVersion ? (
-              <Icon onClick={onBack} icon="stash:angle-left" />
-            ) : (
-              <Icon
-                icon="mingcute:more-2-fill"
-                style={{ color: "black" }}
-                className={classes.desktop__icon}
-              />
-            )}
-          </div>
-        </div>
+      {isChatSelected && otherUser && (
+        <ChatHeader
+          user={otherUser}
+          chatId={selectedChat.chatId}
+          isMobile={isMobileVersion}
+          isBlocked={isUserBlocked}
+          onBack={onBack}
+          onToggleBlock={(blocked) => setBlocked(otherUser.id, blocked)}
+          onReport={reportUser}
+        />
       )}
 
       <div className={classes.chat}>
@@ -251,7 +233,7 @@ export default function MessageBoard({
         ) : (
           <div className={classes.selected__chat} key={currentUser.uid}>
             <div className={classes.messages}>
-              {messages.map((msg) => {
+              {visibleMessages.map((msg) => {
                 const isOwn = msg.senderId === currentUser.uid;
                 const enterClass = isOwn
                   ? classes.bubble_enter__sent
@@ -283,7 +265,23 @@ export default function MessageBoard({
               })}
               <div ref={messagesEndRef}></div>
             </div>
-            {emojiPanel.mounted && (
+            {isUserBlocked && (
+              <div className={classes.blocked__bar}>
+                <Icon icon="lucide:ban" />
+                <p>
+                  You blocked {otherUser?.userName || "this user"}. Their messages
+                  stay hidden until you unblock them.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setBlocked(otherUser.id, false)}
+                >
+                  Unblock
+                </button>
+              </div>
+            )}
+
+            {!isUserBlocked && emojiPanel.mounted && (
               <div
                 className={[
                   classes.emoji__panel,
@@ -305,37 +303,43 @@ export default function MessageBoard({
                 />
               </div>
             )}
-            <div className={classes.chat__input}>
-              <Icon
-                icon="icon-park-outline:link"
-                style={{ color: "black" }}
-                className={classes.link}
-              />
-              <input
-                type="text"
-                className={classes.chat__inputField}
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-              />
-              {!isMobileVersion && (
-                <div className={classes.emoji__picker} ref={emojiIconRef}>
-                  <Icon
-                    icon="emojione:smiling-face"
-                    ref={emojiIconRef}
-                    style={{ color: "#000", cursor: "pointer" }}
-                    onClick={handleEmojiToggle}
-                  />
-                </div>
-              )}
-              <Icon
-                icon="ic:baseline-send"
-                style={{ color: "black", cursor: "pointer" }}
-                className={classes.baseline__send}
-                onClick={handleSendMessage}
-              />
-            </div>
+            {!isUserBlocked && (
+              <div className={classes.chat__input}>
+                <Icon icon="lucide:paperclip" className={classes.link} />
+                <input
+                  type="text"
+                  className={classes.chat__inputField}
+                  placeholder="Type a message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                />
+                <button
+                  type="button"
+                  ref={emojiIconRef}
+                  className={[
+                    classes.composer__btn,
+                    showEmojiPicker ? classes.composer__btn_active : "",
+                  ]
+                    .join(" ")
+                    .trim()}
+                  onClick={handleEmojiToggle}
+                  aria-label="Insert emoji"
+                  aria-expanded={showEmojiPicker}
+                >
+                  <Icon icon="lucide:smile" />
+                </button>
+                <button
+                  type="button"
+                  className={classes.send__btn}
+                  onClick={handleSendMessage}
+                  disabled={!canSend}
+                  aria-label="Send message"
+                >
+                  <Icon icon="lucide:send-horizontal" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

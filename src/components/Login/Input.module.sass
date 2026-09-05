@@ -1,48 +1,98 @@
-.input__container
-    display: flex
-    justify-content: center
-    width: 100%
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
 
-// Wrapper is sized to the input itself, so the eye icon / error anchor to the
-// input's right edge at every viewport — no per-breakpoint nudging needed.
-// min() keeps the desktop look (~34rem) while never overflowing narrow screens.
-.input__wrapper
-    position: relative
+@include nudge-keyframes
+
+.field
+    display: flex
+    flex-direction: column
+    gap: .4rem
+
+.field__label
+    color: $text-muted
+    font-size: .8125rem
+    font-weight: 500
+    letter-spacing: .01em
+
+.field__control
     display: flex
     align-items: center
-    width: min(34rem, 90vw)
+    gap: .625rem
+    padding: 0 .875rem
+    background-color: $surface-0
+    border: 1px solid rgba(255, 255, 255, .1)
+    border-radius: $radius-md
+    transition: border-color $transition-base, box-shadow $transition-base
 
-    .eye__icon
-        position: absolute
-        right: 1.25rem
-        height: 1.5rem
-        width: 1.5rem
-        color: #ADADAD
-        cursor: pointer
+    &:focus-within
+        border-color: rgba(255, 215, 0, .55)
+        box-shadow: 0 0 0 3px rgba(255, 215, 0, .12)
 
-    .error
-        position: absolute
-        right: 1rem
-        font-size: 1.5rem
-        color: red
-        cursor: default
+.field__control_invalid
+    border-color: rgba(255, 107, 107, .55)
 
-        &.has-eye-icon
-            right: 3rem
+    &:focus-within
+        border-color: rgba(255, 107, 107, .7)
+        box-shadow: 0 0 0 3px rgba(255, 107, 107, .12)
 
-.input
-    font-size: 1.25rem
-    background-color: #191B1F
-    border: 1px solid #191B1F
-    margin: 1.063rem 0
-    color: #F1C40F
-    padding: 1.15rem 3rem 1.15rem 1.25rem
-    border-radius: 45px
-    width: 100%
-    box-sizing: border-box
+.field__icon
+    flex-shrink: 0
+    font-size: 1.125rem
+    color: $text-muted
 
-@media (max-width: 600px)
-    .input
-        font-size: 1rem
-        margin: .5rem 0
-        padding: 1rem 2.75rem 1rem 1.15rem
+.field__input
+    flex: 1
+    min-width: 0
+    padding: .8rem 0
+    background: none
+    border: none
+    outline: none
+    color: $text-primary
+    font-size: 1rem
+
+    &::placeholder
+        color: #6b7076
+
+    // BS: Chrome paints its own near-white background over autofilled fields,
+    // which would turn a dark input into an unreadable light slab.
+    &:-webkit-autofill
+        -webkit-text-fill-color: $text-primary
+        -webkit-box-shadow: 0 0 0 1000px $surface-0 inset
+        caret-color: $text-primary
+
+.field__toggle
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+    width: 2rem
+    height: 2rem
+    padding: 0
+    background: none
+    border: none
+    border-radius: 50%
+    color: $text-muted
+    font-size: 1.125rem
+    cursor: pointer
+    transition: background-color $transition-base, color $transition-base
+
+    &:hover
+        background-color: $surface-2
+        color: $text-primary
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 1px
+
+.field__error
+    display: flex
+    align-items: center
+    gap: .35rem
+    margin: 0
+    color: #ff8a8a
+    font-size: .8125rem
+    animation: nudge $duration-entrance $ease-out-soft
+
+    svg
+        flex-shrink: 0
+        font-size: .9375rem
