@@ -73,14 +73,20 @@ export default function Signin() {
         setIsSigningIn(true);
         setSignInError(null);
 
-        const { error } = await doSignInWithEmailAndPassword(DEMO_EMAIL, DEMO_PASSWORD);
+        try {
+            const { error } = await doSignInWithEmailAndPassword(DEMO_EMAIL, DEMO_PASSWORD);
 
-        if (error) {
-            setSignInError('The demo is unavailable right now. Please try again later.');
-        } else {
-            navigate('/');
+            if (error) {
+                setSignInError('The demo is unavailable right now. Please try again later.');
+            } else {
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Demo sign-in error:', err);
+            setSignInError('Unexpected error. Please try again later.');
+        } finally {
+            setIsSigningIn(false);
         }
-        setIsSigningIn(false);
     }
 
     const onGoogleSignIn = async (e) => {
@@ -88,15 +94,21 @@ export default function Signin() {
         setIsSigningIn(true);
         setSignInError(null);
 
-        const { user, error } = await doSignInWithGoogle();
+        try {
+            const { user, error } = await doSignInWithGoogle();
 
-        if (error) {
-            setSignInError('Error with Google sign-in. Please try again.');
-        } else {
-            console.log('user', user);
-            navigate('/');
+            if (error) {
+                setSignInError('Error with Google sign-in. Please try again.');
+            } else {
+                console.log('user', user);
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Google sign-in error:', err);
+            setSignInError('Unexpected error. Please try again later.');
+        } finally {
+            setIsSigningIn(false);
         }
-        setIsSigningIn(false);
     }
 
     const onGitHubSignIn = async (e) => {
@@ -104,15 +116,21 @@ export default function Signin() {
         setIsSigningIn(true);
         setSignInError(null);
 
-        const { user, error } = await doSignInWithGitHub();
+        try {
+            const { user, error } = await doSignInWithGitHub();
 
-        if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
-        } else {
-            console.log(user);
-            navigate('/');
+            if (error) {
+                setSignInError('Error with GitHub sign-in. Please try again.');
+            } else {
+                console.log(user);
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('GitHub sign-in error:', err);
+            setSignInError('Unexpected error. Please try again later.');
+        } finally {
+            setIsSigningIn(false);
         }
-        setIsSigningIn(false);
     }
 
     return (
