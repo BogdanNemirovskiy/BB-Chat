@@ -11,3 +11,16 @@ node_modules/
 .firebase/
 .vercel
 .env*
+
+# Firebase service-account keys. These grant full admin access to the project,
+# bypassing every security rule — committing one is the worst single mistake
+# available in this repo. Keep them outside the working tree if you can.
+*serviceAccount*.json
+*service-account*.json
+*-firebase-adminsdk-*.json
+secrets/
+
+# Build output. Vercel builds from source and `npm run deploy` rebuilds
+# before publishing to gh-pages, so the committed copy served no purpose
+# beyond noisy minified diffs on every commit.
+build/
