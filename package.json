@@ -25,7 +25,9 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "seed:demo": "node --env-file=.env scripts/seedDemo.mjs"
+    "seed:demo": "node --env-file=.env scripts/seedDemo.mjs",
+    "migrate:profiles": "node scripts/migrateProfiles.mjs",
+    "prune:reports": "node scripts/pruneReports.mjs"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@iconify/react": "^5.0.2",
+    "firebase-admin": "^13.0.0",
     "gh-pages": "^6.3.0"
   }
 }
