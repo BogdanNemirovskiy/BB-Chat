@@ -1,0 +1,132 @@
+@use '../../styles/tokens' as *
+
+$danger:       #e5534b
+$danger-hover: #c4433c
+
+.danger
+    width: 100%
+    max-width: 26rem
+    margin: $space-6 auto 0
+    padding-top: $space-6
+    border-top: 1px solid $surface-2
+    text-align: center
+
+.danger__title
+    margin: 0 0 $space-2
+    font-size: 1rem
+    color: $danger
+
+.danger__text
+    margin: 0 0 $space-4
+    color: $text-muted
+    font-size: .875rem
+    line-height: 1.6
+
+.danger__note
+    display: flex
+    align-items: center
+    justify-content: center
+    gap: $space-2
+
+    margin: 0
+    color: $text-muted
+    font-size: .875rem
+
+.danger__btn
+    display: inline-flex
+    align-items: center
+    gap: $space-2
+
+    padding: $space-3 $space-4
+    border: 1px solid $danger
+    border-radius: $radius-pill
+    background: transparent
+    color: $danger
+    font-size: .9375rem
+    cursor: pointer
+
+    transition: background-color $transition-base, color $transition-base
+
+    &:hover
+        background-color: $danger
+        color: $text-primary
+
+    &:focus-visible
+        outline: 2px solid $danger
+        outline-offset: 2px
+
+.modal__text
+    margin: 0 0 $space-4
+    color: #d6d8dc
+    line-height: 1.6
+
+.modal__hint
+    margin: 0 0 $space-4
+    color: $text-muted
+    font-size: .875rem
+
+.field
+    display: block
+    margin-bottom: $space-4
+
+    span
+        display: block
+        margin-bottom: $space-2
+        color: $text-muted
+        font-size: .875rem
+
+    input
+        width: 100%
+        box-sizing: border-box
+        padding: $space-3
+
+        background-color: $surface-0
+        border: 1px solid $surface-2
+        border-radius: $radius-sm
+        color: $text-primary
+        font-size: 1rem
+        font-family: inherit
+
+        &:focus
+            outline: none
+            border-color: $accent
+
+.modal__error
+    display: flex
+    align-items: center
+    gap: $space-2
+
+    margin: 0 0 $space-4
+    color: $danger
+    font-size: .875rem
+
+.modal__actions
+    display: flex
+    justify-content: flex-end
+    gap: $space-3
+
+    button
+        padding: $space-3 $space-4
+        border-radius: $radius-pill
+        border: 1px solid $surface-2
+        background: transparent
+        color: $text-primary
+        font-size: .9375rem
+        font-family: inherit
+        cursor: pointer
+
+        transition: background-color $transition-base, opacity $transition-base
+
+        &:hover:not(:disabled)
+            background-color: $surface-2
+
+        &:disabled
+            opacity: .5
+            cursor: not-allowed
+
+.modal__confirm
+    border-color: $danger
+    background-color: $danger
+
+    &:hover:not(:disabled)
+        background-color: $danger-hover

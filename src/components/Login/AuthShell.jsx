@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import logo from '../../images/logo.png';
 import classes from './Auth.module.sass';
 
@@ -16,6 +17,14 @@ export default function AuthShell({ title, subtitle, children, footer }) {
             </div>
 
             <p className={classes.footer}>{footer}</p>
+
+            {/* BS: shown on both auth screens rather than on sign-up alone —
+                the notice has to be reachable before an email is handed over,
+                whichever door the visitor came through. */}
+            <p className={classes.legal}>
+                We store your email, name and messages to run the chat.{' '}
+                <Link to="/privacy">Privacy Policy</Link>
+            </p>
         </div>
     );
 }

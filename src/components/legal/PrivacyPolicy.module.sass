@@ -1,0 +1,143 @@
+@use '../../styles/tokens' as *
+@use '../../styles/motion' as *
+
+@include rise-in-keyframes
+
+// BS: body is overflow:hidden app-wide, so this page has to own its own
+// scrolling or the policy is simply cut off below the fold.
+.page
+    height: 100vh
+    height: 100dvh
+    width: 100%
+    padding: $space-6 $space-4 4rem
+    box-sizing: border-box
+    overflow-y: auto
+
+.go_back
+    display: inline-flex
+    align-items: center
+    gap: $space-2
+
+    color: $text-muted
+    font-size: .9375rem
+    cursor: pointer
+    transition: color $transition-base
+
+    svg
+        transform: rotate(180deg)
+
+    &:hover
+        color: $accent
+
+    &:focus-visible
+        outline: 2px solid $accent
+        outline-offset: 4px
+        border-radius: $radius-sm
+
+.paper
+    max-width: 46rem
+    margin: $space-6 auto 0
+
+    background-color: $surface-1
+    border-radius: $radius-lg
+    box-shadow: $shadow-soft
+    padding: $space-6
+
+    color: $text-primary
+    // BS: Legal text is read, not scanned — the looser line height and capped
+    // measure above are what keep a wall of prose approachable.
+    line-height: 1.7
+
+    animation: rise-in $duration-entrance $ease-out-soft both
+
+    section + section
+        margin-top: $space-6
+
+    p
+        color: #d6d8dc
+        margin: 0 0 $space-3
+
+    a
+        color: $accent
+        text-decoration: none
+
+        &:hover
+            text-decoration: underline
+
+    strong
+        color: $text-primary
+
+    h2
+        font-size: 1.125rem
+        margin: 0 0 $space-3
+        color: $accent
+
+.head
+    border-bottom: 1px solid $surface-2
+    padding-bottom: $space-4
+    margin-bottom: $space-6
+
+    h1
+        margin: 0
+        font-size: 1.75rem
+
+.updated
+    margin: $space-2 0 0
+    color: $text-muted
+    font-size: .875rem
+
+.intro
+    font-size: 1.0625rem
+
+.list
+    margin: 0 0 $space-3
+    padding-left: 1.25rem
+    color: #d6d8dc
+
+    li
+        margin-bottom: $space-2
+
+.table
+    width: 100%
+    border-collapse: collapse
+    margin-bottom: $space-4
+    font-size: .9375rem
+
+    th,
+    td
+        text-align: left
+        padding: $space-3
+        border-bottom: 1px solid $surface-2
+        vertical-align: top
+
+    th
+        color: $text-muted
+        font-weight: 600
+        white-space: nowrap
+
+    td
+        color: #d6d8dc
+
+@media (max-width: 600px)
+    .paper
+        padding: $space-4
+
+    // BS: A three-column table cannot survive a phone, so it is re-flowed into
+    // stacked rows with the header text supplied by data-label-less order.
+    .table
+        th
+            display: none
+
+        tr
+            display: block
+            padding: $space-3 0
+            border-bottom: 1px solid $surface-2
+
+        td
+            display: block
+            border: none
+            padding: 0 0 $space-1
+
+            &:first-child
+                color: $text-primary
+                font-weight: 600

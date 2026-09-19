@@ -1,5 +1,4 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -10,20 +9,15 @@ const firebaseConfig = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
+// BS: Google Analytics for Firebase is deliberately not initialised. It is the
+// only non-essential storage this app would ever write, and dropping it is what
+// keeps the site free of a cookie-consent banner — Firebase Auth's own session
+// storage is strictly necessary, which needs no consent. See PRIVACY.md.
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-// BS: analytics is blocked by most ad blockers/browsers with tracking protection;
-// isSupported() + try/catch keeps that from ever surfacing as an app error.
-isSupported()
-  .then((supported) => {
-    if (supported) getAnalytics(app);
-  })
-  .catch(() => {});
 
 export { app, auth, db };

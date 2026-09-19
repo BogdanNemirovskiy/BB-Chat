@@ -79,9 +79,11 @@ async function ensureAccount({ email, password, userName }) {
         await updateProfile(user, { displayName: userName });
         await setDoc(doc(db, 'users', user.uid), {
             userName,
-            email,
             createdAt: new Date(),
         });
+        // BS: mirrors src/config/auth.js — the email never goes in the public
+        // profile document, which every signed-in user can read.
+        await setDoc(doc(db, 'users', user.uid, 'private', 'contact'), { email });
         console.log(`Created ${userName} (${email})`);
         return user.uid;
     } catch (error) {

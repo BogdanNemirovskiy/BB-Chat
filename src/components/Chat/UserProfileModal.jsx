@@ -36,8 +36,6 @@ export default function UserProfileModal({ user, isBlocked, onClose }) {
     const name = profile?.userName || user?.userName || 'User';
     const details = [
         ['Username', profile?.userTag ? `@${profile.userTag}` : `@${name.toLowerCase()}`],
-        ['Location', profile?.address],
-        ['Birthday', formatDate(profile?.DOB)],
         ['Member since', formatDate(profile?.createdAt)],
     ].filter(([, value]) => Boolean(value));
 

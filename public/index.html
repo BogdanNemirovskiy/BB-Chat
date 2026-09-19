@@ -6,7 +6,7 @@
   <!-- <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Web site created using create-react-app" />
+  <meta name="description" content="BB Chat — a real-time chat app built with React and Firebase." />
   <!-- <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.png" /> -->
   <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -18,13 +18,13 @@
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-  <!-- App font: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-  />
+  <!-- App font: Inter, self-hosted. Serving it from our own origin means no
+       visitor IP address is sent to Google just to render the page. -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="%PUBLIC_URL%/fonts/inter/inter-400-latin.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="%PUBLIC_URL%/fonts/inter/inter-600-latin.woff2" />
+  <link rel="stylesheet" href="%PUBLIC_URL%/fonts/inter/inter.css" />
 
   <!--
       Notice the use of %PUBLIC_URL% in the tags above.

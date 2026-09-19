@@ -5,6 +5,7 @@ import ChatPage from "./components/pages/ChatPage";
 import EditProfilePage from "./components/pages/EditProfilePage";
 import { AuthProvider, useAuth } from "./context/authContext/index";
 import ErrorPage from "./components/pages/ErrorPage";
+import PrivacyPage from "./components/pages/PrivacyPage";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
@@ -35,6 +36,12 @@ const router = createHashRouter([
         <EditProfilePage />
       </PrivateRoute>
     ),
+  },
+  {
+    // BS: deliberately outside PrivateRoute — a privacy notice has to be
+    // readable before anyone hands over an email address.
+    path: "/privacy",
+    element: <PrivacyPage />,
   },
   {
     path: '*',

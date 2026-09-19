@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../config/firebaseConfig';
-import { setUserBlocked, submitUserReport } from '../config/functions';
+import { onSnapshot } from 'firebase/firestore';
+import { moderationRef, setUserBlocked, submitUserReport } from '../config/functions';
 import { useAuth } from '../context/authContext';
 
 const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL;
@@ -23,7 +22,7 @@ export function useModeration() {
         if (!currentUser?.uid || isDemo) return;
 
         return onSnapshot(
-            doc(db, 'users', currentUser.uid),
+            moderationRef(currentUser.uid),
             (snapshot) => setBlockedUsers(snapshot.data()?.blockedUsers || []),
             (error) => console.error('Error watching block list:', error)
         );

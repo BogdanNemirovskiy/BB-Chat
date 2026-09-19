@@ -191,6 +191,18 @@ a
         width: 70px
         height: 70px
 
+.privacy__link
+    display: block
+    margin: 0 auto 1rem
+    color: $text-muted
+    font-size: .8125rem
+    text-align: center
+    text-decoration: none
+
+    &:hover
+        color: $accent
+        text-decoration: underline
+
 .signout__btn
     display: flex
     align-items: center
@@ -370,6 +382,9 @@ a
         margin: .75rem 0 0 1rem
 
     .signout__btn
+        margin-bottom: .75rem
+
+    .privacy__link
         margin-bottom: calc(1rem + env(safe-area-inset-bottom))
 
 @media (max-width: 400px)

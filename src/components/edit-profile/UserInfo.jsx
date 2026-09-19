@@ -24,8 +24,6 @@ export default function UserInfo({ info, userInfo, onSave }) {
         setIsEditing(false);
     };
 
-    const inputType = info === 'DOB' ? 'date' : 'text';
-
     return (
         <ul className={classes.list__info}>
             <li className={classes.li__info}>{info}</li>
@@ -33,7 +31,7 @@ export default function UserInfo({ info, userInfo, onSave }) {
             {isEditing ? (
                 <div className={classes.edit__container}>
                     <input
-                        type={inputType}
+                        type="text"
                         value={editedValue || ''}
                         onChange={(e) => setEditedValue(e.target.value)}
                         className={classes.edit__input}

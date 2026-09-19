@@ -1,3 +1,14 @@
+// BS: body is overflow:hidden app-wide, so this page owns its own scrolling
+// — without it the danger zone below the fold is simply unreachable.
+.page
+    position: relative
+    height: 100vh
+    height: 100dvh
+    width: 100%
+    box-sizing: border-box
+    padding-bottom: 3rem
+    overflow-y: auto
+
 .go_back__btn
     display: flex
     align-items: center
@@ -127,4 +138,12 @@
     margin: 0
     color: #ff6b6b
     font-size: 0.9rem
+    text-align: center
+
+// BS: scoped under .edit__profile because that block already sets a `p` rule,
+// which would otherwise win on specificity over a bare class.
+.edit__profile .contact__email
+    margin-top: 1rem
+    color: #9aa0a6
+    font-size: .875rem
     text-align: center

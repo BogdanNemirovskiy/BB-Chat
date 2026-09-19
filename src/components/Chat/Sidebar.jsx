@@ -60,7 +60,12 @@ export default function Sidebar({ handleSelectChat, selectedChatId, enterFrom })
                             },
                         };
                     } else {
-                        return { ...chat, user: null };
+                        // BS: no profile document means the account was deleted.
+                        // The conversation stays, the person behind it does not.
+                        return {
+                            ...chat,
+                            user: { id: otherUserId, userName: 'Deleted user', photoURL: null },
+                        };
                     }
                 })
             );
@@ -333,6 +338,12 @@ export default function Sidebar({ handleSelectChat, selectedChatId, enterFrom })
                 <Icon icon="material-symbols:logout-rounded" />
                 Sign out
             </button>
+
+            {/* BS: the notice has to stay reachable after sign-up too — that is
+                where someone goes looking for how to get their data deleted. */}
+            <Link to="/privacy" className={classes.privacy__link}>
+                Privacy Policy
+            </Link>
         </div>
 
     );
