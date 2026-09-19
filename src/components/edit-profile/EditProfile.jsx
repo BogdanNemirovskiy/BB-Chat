@@ -1,13 +1,14 @@
 import UserInfo from './UserInfo';
+import DeleteAccount from './DeleteAccount';
 import Avatar from '../common/Avatar';
 import classes from './EditProfile.module.sass';
 import { useAuth } from '../../context/authContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getContactEmail } from '../../config/functions';
 import { db } from '../../config/firebaseConfig';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { updateProfile } from 'firebase/auth';
-import { API } from '../../config/api';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
@@ -18,8 +19,8 @@ export default function EditProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [imageError, setImageError] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
     const fileInputRef = useRef(null);
-    const [cloudName] = useState(API.cloudinary.cloud_name);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +34,11 @@ export default function EditProfile() {
                     const data = userSnapshot.data();
                     setUserData(data);
                     setLocalData(data);
+                    // BS: the email is not in the profile document any more, so
+                    // it takes a second read. Shown read-only — it identifies the
+                    // account, and letting people see what is stored about them
+                    // is half the point of having a profile page.
+                    setContactEmail(await getContactEmail(currentUser.uid) || '');
                 } else {
                     console.error('No such user document!');
                 }
@@ -56,8 +62,10 @@ export default function EditProfile() {
             const userDoc = doc(db, 'users', currentUser.uid);
 
             // Persist only the editable fields so we never clobber
-            // server-managed data (createdAt, email, photoURL, ...).
-            const editableFields = ['userName', 'address', 'userTag', 'DOB'];
+            // server-managed data (createdAt, photoURL, ...).
+            // BS: address and DOB used to be here. Nothing in a chat app needs a
+            // home address or a date of birth, so they are no longer collected.
+            const editableFields = ['userName', 'userTag'];
             const updates = {};
             editableFields.forEach((field) => {
                 if (localData[field] !== undefined) updates[field] = localData[field];
@@ -111,17 +119,28 @@ export default function EditProfile() {
         }
         setImageError('');
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        formData.append('upload_preset', API.cloudinary.upload_preset);
-
         try {
+            // BS: The signature is minted server-side and only ever covers this
+            // user's own avatar slot. The app used to upload with an unsigned
+            // preset, which is a public write credential sitting in the bundle —
+            // anyone reading the page source could fill the Cloudinary account.
+            const { data: signature } = await axios.post('/api/sign-upload', {
+                idToken: await currentUser.getIdToken(),
+            });
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('api_key', signature.apiKey);
+            formData.append('timestamp', signature.timestamp);
+            formData.append('public_id', signature.public_id);
+            formData.append('overwrite', signature.overwrite);
+            formData.append('invalidate', signature.invalidate);
+            formData.append('signature', signature.signature);
+
             const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,
                 formData
             );
-            console.log('Upload success:', response.data);
-
             const publicId = response.data.public_id;
             const uploadedImageUrl = response.data.secure_url;
 
@@ -141,7 +160,11 @@ export default function EditProfile() {
             currentUser.photoURL = uploadedImageUrl;
         } catch (error) {
             console.error('Error uploading to Cloudinary:', error);
-            setImageError('Failed to upload image. Please try again.');
+            setImageError(
+                error.response?.status === 404
+                    ? 'Image uploads need the API routes — run `vercel dev` rather than `npm start`.'
+                    : 'Failed to upload image. Please try again.'
+            );
         }
     };
 
@@ -153,12 +176,8 @@ export default function EditProfile() {
         return <div className={classes.error}>{error}</div>;
     }
 
-    if (!cloudName) {
-        console.error('Cloudinary cloud_name is missing. Check your environment variables.');
-    }
-
     return (
-        <>
+        <div className={classes.page}>
             <div
                 onClick={() => navigate(-1)}
                 className={classes.go_back__btn}
@@ -194,26 +213,27 @@ export default function EditProfile() {
                         onSave={(value) => handleFieldChange('userName', value)}
                     />
                     <UserInfo
-                        info="Address"
-                        userInfo={localData?.address || ''}
-                        onSave={(value) => handleFieldChange('address', value)}
-                    />
-                    <UserInfo
                         info="UserTag"
                         userInfo={localData?.userTag || ''}
                         onSave={(value) => handleFieldChange('userTag', value)}
                     />
-                    <UserInfo
-                        info="DOB"
-                        userInfo={localData?.DOB || ''}
-                        onSave={(value) => handleFieldChange('DOB', value)}
-                    />
                 </div>
+
+                {contactEmail && (
+                    <p className={classes.contact__email}>
+                        Signed in as {contactEmail} — only you can see this.
+                    </p>
+                )}
 
                 <button className={classes.save__button} onClick={handleSaveToFirestore}>
                     Save
                 </button>
             </div>
-        </>
+
+            {/* BS: a sibling of .edit__profile, not a child — that block styles
+                every descendant <button>, which would repaint the destructive
+                action as the yellow primary one. */}
+            <DeleteAccount />
+        </div>
     );
 }

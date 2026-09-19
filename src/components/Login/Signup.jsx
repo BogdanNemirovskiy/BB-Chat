@@ -3,7 +3,8 @@ import Input from './Input';
 import AuthShell from './AuthShell';
 import classes from './Auth.module.sass';
 import { validateField } from './functions';
-import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
+import { doCreateUserWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, authErrorMessage } from '../../config/auth';
+import { useAuth } from '../../context/authContext';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateAllFields } from './functions';
@@ -18,6 +19,11 @@ export default function Signup() {
     const [signInError, setSignInError] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const navigate = useNavigate();
+    const { redirectError } = useAuth();
+
+    // BS: a failed redirect sign-in lands back here with no click to report it,
+    // so the context error has to be shown alongside the local one.
+    const errorBanner = signInError || errors?.general || authErrorMessage(redirectError, 'Could not sign in. Please try again.');
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -72,34 +78,32 @@ export default function Signup() {
         }));
     };
 
-    const onGoogleSignIn = async (e) => {
+    const handleProviderSignIn = async (e, signIn) => {
         e.preventDefault();
         setIsSigningIn(true);
         setSignInError(null);
 
-        const { error } = await doSignInWithGoogle();
+        let redirecting = false;
 
-        if (error) {
-            setSignInError('Error with Google sign-in. Please try again.');
-        } else {
-            navigate('/');
+        try {
+            const result = await signIn();
+            redirecting = result.redirecting;
+
+            if (redirecting) return;
+
+            if (result.error) {
+                setSignInError(authErrorMessage(result.error, 'Could not sign in. Please try again.'));
+            } else {
+                navigate('/');
+            }
+        } catch (err) {
+            console.error('Provider sign-in error:', err);
+            setSignInError('Unexpected error. Please try again later.');
+        } finally {
+            // BS: on the redirect path the page is unloading — keep the button busy
+            // instead of flicking back to idle on the way out.
+            if (!redirecting) setIsSigningIn(false);
         }
-        setIsSigningIn(false);
-    }
-
-    const onGitHubSignIn = async (e) => {
-        e.preventDefault();
-        setIsSigningIn(true);
-        setSignInError(null);
-
-        const { error } = await doSignInWithGitHub();
-
-        if (error) {
-            setSignInError('Error with GitHub sign-in. Please try again.');
-        } else {
-            navigate('/');
-        }
-        setIsSigningIn(false);
     }
 
     return (
@@ -112,10 +116,10 @@ export default function Signup() {
                 </>
             }
         >
-            {(signInError || errors?.general) && (
+            {errorBanner && (
                 <p className={classes.error__banner}>
                     <Icon icon="lucide:alert-circle" />
-                    {signInError || errors.general}
+                    {errorBanner}
                 </p>
             )}
 
@@ -168,7 +172,7 @@ export default function Signup() {
                 <button
                     type="button"
                     className={classes.social__btn}
-                    onClick={onGoogleSignIn}
+                    onClick={(e) => handleProviderSignIn(e, doSignInWithGoogle)}
                     disabled={isSigningIn}
                 >
                     <Icon icon="flat-color-icons:google" />
@@ -177,7 +181,7 @@ export default function Signup() {
                 <button
                     type="button"
                     className={classes.social__btn}
-                    onClick={onGitHubSignIn}
+                    onClick={(e) => handleProviderSignIn(e, doSignInWithGitHub)}
                     disabled={isSigningIn}
                 >
                     <Icon icon="simple-icons:github" />

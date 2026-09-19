@@ -3,7 +3,8 @@ import Input from './Input';
 import AuthShell from './AuthShell';
 import classes from './Auth.module.sass';
 import { validateField, validateAllFields } from './functions';
-import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub } from '../../config/auth';
+import { doSignInWithEmailAndPassword, doSignInWithGoogle, doSignInWithGitHub, authErrorMessage } from '../../config/auth';
+import { useAuth } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Link } from 'react-router-dom';
@@ -19,6 +20,11 @@ export default function Signin() {
     const [signInError, setSignInError] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const navigate = useNavigate();
+    const { redirectError } = useAuth();
+
+    // BS: a failed redirect sign-in lands back here with no click to report it,
+    // so the context error has to be shown alongside the local one.
+    const errorBanner = signInError || authErrorMessage(redirectError, 'Could not sign in. Please try again.');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -46,18 +52,11 @@ export default function Signin() {
         }
 
         try {
-            const { user, error } = await doSignInWithEmailAndPassword(formData.email, formData.password);
+            const { error } = await doSignInWithEmailAndPassword(formData.email, formData.password);
 
             if (error) {
-                if (error.code === 'auth/wrong-password') {
-                    setSignInError('Incorrect password. Please try again.');
-                } else if (error.code === 'auth/user-not-found') {
-                    setSignInError('No account found with this email.');
-                } else {
-                    setSignInError('Error signing in. Please try again later.');
-                }
+                setSignInError(authErrorMessage(error, 'Error signing in. Please try again later.'));
             } else {
-                console.log('user', user);
                 navigate('/');
             }
         } catch (err) {
@@ -91,47 +90,31 @@ export default function Signin() {
         }
     }
 
-    const onGoogleSignIn = async (e) => {
+    const handleProviderSignIn = async (e, signIn) => {
         e.preventDefault();
         setIsSigningIn(true);
         setSignInError(null);
 
-        try {
-            const { user, error } = await doSignInWithGoogle();
+        let redirecting = false;
 
-            if (error) {
-                setSignInError('Error with Google sign-in. Please try again.');
+        try {
+            const result = await signIn();
+            redirecting = result.redirecting;
+
+            if (redirecting) return;
+
+            if (result.error) {
+                setSignInError(authErrorMessage(result.error, 'Could not sign in. Please try again.'));
             } else {
-                console.log('user', user);
                 navigate('/');
             }
         } catch (err) {
-            console.error('Google sign-in error:', err);
+            console.error('Provider sign-in error:', err);
             setSignInError('Unexpected error. Please try again later.');
         } finally {
-            setIsSigningIn(false);
-        }
-    }
-
-    const onGitHubSignIn = async (e) => {
-        e.preventDefault();
-        setIsSigningIn(true);
-        setSignInError(null);
-
-        try {
-            const { user, error } = await doSignInWithGitHub();
-
-            if (error) {
-                setSignInError('Error with GitHub sign-in. Please try again.');
-            } else {
-                console.log(user);
-                navigate('/');
-            }
-        } catch (err) {
-            console.error('GitHub sign-in error:', err);
-            setSignInError('Unexpected error. Please try again later.');
-        } finally {
-            setIsSigningIn(false);
+            // BS: on the redirect path the page is unloading — keep the button busy
+            // instead of flicking back to idle on the way out.
+            if (!redirecting) setIsSigningIn(false);
         }
     }
 
@@ -160,10 +143,10 @@ export default function Signin() {
                 </div>
             )}
 
-            {signInError && (
+            {errorBanner && (
                 <p className={classes.error__banner}>
                     <Icon icon="lucide:alert-circle" />
-                    {signInError}
+                    {errorBanner}
                 </p>
             )}
 
@@ -204,7 +187,7 @@ export default function Signin() {
                 <button
                     type="button"
                     className={classes.social__btn}
-                    onClick={onGoogleSignIn}
+                    onClick={(e) => handleProviderSignIn(e, doSignInWithGoogle)}
                     disabled={isSigningIn}
                 >
                     <Icon icon="flat-color-icons:google" />
@@ -213,7 +196,7 @@ export default function Signin() {
                 <button
                     type="button"
                     className={classes.social__btn}
-                    onClick={onGitHubSignIn}
+                    onClick={(e) => handleProviderSignIn(e, doSignInWithGitHub)}
                     disabled={isSigningIn}
                 >
                     <Icon icon="simple-icons:github" />

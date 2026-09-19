@@ -6,27 +6,81 @@ service cloud.firestore {
     // sign in as them. Confine those two accounts to chats between themselves,
     // otherwise a visitor could message real users from the demo identity.
     // UIDs come from `npm run seed:demo` (Demo User, then Alex Rivera).
+    function isDemoAccount(uid) {
+      return uid in ['zDwFCf2SP2UER6GtjT3peI5LU8D2', 'tDE1JWK0JzVbTZI7C1s19MUw6f43'];
+    }
+
     function isAllowedForDemo(uid, userIds) {
-      return !(uid in ['zDwFCf2SP2UER6GtjT3peI5LU8D2', 'tDE1JWK0JzVbTZI7C1s19MUw6f43'])
+      return !isDemoAccount(uid)
         || userIds.hasOnly(['zDwFCf2SP2UER6GtjT3peI5LU8D2', 'tDE1JWK0JzVbTZI7C1s19MUw6f43']);
+    }
+
+    // The profile document is readable by every signed-in account, so its shape
+    // is a whitelist rather than a suggestion: a field that is not on this list
+    // cannot be written at all. Without it a user could park arbitrary data —
+    // their own or someone else's — in a document the whole app can read.
+    function isValidProfile(data) {
+      return data.keys().hasOnly([
+               'userName', 'userTag', 'photoURL', 'photoPublicId',
+               'createdAt', 'providerId'
+             ])
+        && data.userName is string
+        && data.userName.size() > 0
+        && data.userName.size() <= 64
+        && (!('userTag' in data.keys()) || (data.userTag is string && data.userTag.size() <= 64))
+        // Avatars may only point at hosts we actually upload to or receive from
+        // (Cloudinary for uploads; Google and GitHub for social sign-in). An
+        // arbitrary URL here is served to everyone who opens the chat list,
+        // which turns the profile document into a tracking pixel aimed at other
+        // users — it would log their IP and user agent on every render.
+        && (!('photoURL' in data.keys()) || data.photoURL == null
+            || (data.photoURL is string
+                && (data.photoURL.matches('https://res[.]cloudinary[.]com/.*')
+                    || data.photoURL.matches('https://lh[0-9][.]googleusercontent[.]com/.*')
+                    || data.photoURL.matches('https://avatars[.]githubusercontent[.]com/.*'))));
     }
 
     // Profiles: any signed-in user can read (needed for user search and for
     // showing other people's avatars/names in the chat list); only the owner
-    // may write their own document.
+    // may write their own document. Because this document is readable by
+    // everyone signed in, it must hold nothing but what the chat UI displays —
+    // the email address and block list live in the private subcollection below.
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && isValidProfile(request.resource.data);
+      // Deleting your own profile is the erasure path. The shared demo account
+      // is excluded: anyone can sign into it, so anyone could otherwise wipe it.
+      allow delete: if request.auth != null
+        && request.auth.uid == userId
+        && !isDemoAccount(userId);
+
+      // Owner-only data. A nested match is required — rules on the parent
+      // document do not extend to its subcollections.
+      match /private/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
     // Reports: write-only from the client. A signed-in user may file a report as
     // themselves; nobody may read, edit or delete them from the app — moderation
     // happens in the Firebase console.
     match /reports/{reportId} {
+      // Sizes are capped here, not only in the UI: the client-side .slice(1000)
+      // is a convenience, and anyone can call Firestore directly.
       allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+             'reporterId', 'reportedUserId', 'reason', 'details', 'chatId', 'createdAt'
+           ])
         && request.resource.data.reporterId == request.auth.uid
         && request.resource.data.reportedUserId is string
-        && request.resource.data.reason is string;
+        && request.resource.data.reportedUserId.size() <= 128
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 128
+        && (!('details' in request.resource.data.keys())
+            || (request.resource.data.details is string
+                && request.resource.data.details.size() <= 1000));
       allow read, update, delete: if false;
     }
 
@@ -54,8 +108,25 @@ service cloud.firestore {
           && request.auth.uid in
              get(/databases/$(database)/documents/chats/$(chatId)).data.userIds
           && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          // A cap the UI does not impose. Firestore's own document limit is 1MB,
+          // which is not a message — it is a way to bloat someone else's chat.
+          && request.resource.data.text.size() <= 4000
           && isAllowedForDemo(request.auth.uid,
              get(/databases/$(database)/documents/chats/$(chatId)).data.userIds);
+
+        // The only permitted update is anonymisation during account deletion:
+        // you may unlink your own message from yourself, and nothing else. The
+        // text must survive untouched, so this cannot become message editing.
+        allow update: if request.auth != null
+          && resource.data.senderId == request.auth.uid
+          && request.resource.data.senderId == 'deleted'
+          && request.resource.data.displayName == 'Deleted user'
+          && request.resource.data.text == resource.data.text
+          && request.resource.data.createdAt == resource.data.createdAt;
+
+        allow delete: if false;
       }
     }
   }
